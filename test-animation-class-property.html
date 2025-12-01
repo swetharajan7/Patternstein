@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Test: Animation Class Application</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a2e;
+            color: #fff;
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #00d4ff;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .test-section {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .test-title {
+            color: #00ff88;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+        
+        .test-result {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .test-pass {
+            background: rgba(0, 255, 136, 0.2);
+            border-left: 4px solid #00ff88;
+        }
+        
+        .test-fail {
+            background: rgba(255, 0, 0, 0.2);
+            border-left: 4px solid #ff0000;
+        }
+        
+        .test-info {
+            background: rgba(0, 212, 255, 0.1);
+            border-left: 4px solid #00d4ff;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+        
+        .test-progress {
+            background: rgba(255, 165, 0, 0.2);
+            border-left: 4px solid #ffa500;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        #healthTipText {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #ccc;
+            text-align: center;
+            min-height: 1.5em;
+        }
+        
+        .fade-in {
+            animation: fade-in 0.8s ease-in-out forwards;
+        }
+        
+        .fade-out {
+            animation: fade-out 0.8s ease-in-out forwards;
+        }
+        
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fade-out {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+        
+        .summary {
+            background: rgba(0, 212, 255, 0.2);
+            border: 2px solid #00d4ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .summary h2 {
+            color: #00ff88;
+            margin-bottom: 15px;
+        }
+        
+        .transition-details {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .transition-item {
+            padding: 8px;
+            margin: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .transition-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Property Test: Animation Class Application</h1>
+    
+    <div class="test-section">
+        <div class="test-title">Property 4: Animation Class Application</div>
+        <div class="test-info">
+            <strong>Feature:</strong> health-tips-footer, Property 4: Animation class application<br>
+            <strong>Validates:</strong> Requirements 3.2<br>
+            <strong>Property:</strong> <em>For any</em> tip transition, the fade-out class should be applied to the current tip before the fade-in class is applied to the next tip<br>
+            <strong>Requirement 3.2:</strong> WHEN tips transition THEN the system SHALL use smooth fade animations
+        </div>
+        <div id="test-results"></div>
+        <div id="test-progress"></div>
+    </div>
+    
+    <div class="summary" id="summary"></div>
+    
+    <!-- Hidden element for testing -->
+    <div id="healthTipText" style="display: none;"></div>
+    
+    <script>
+        /**
+         * Feature: health-tips-footer, Property 4: Animation class application
+         * 
+         * This property-based test validates that during tip transitions,
+         * the fade-out animation class is always applied before the fade-in
+         * animation class, ensuring smooth transitions.
+         */
+        
+        // Health tips array (same as in index.html)
+        const healthTips = [
+            "Stay hydrated: Drink 8 glasses of water daily 💧",
+            "Get 7-9 hours of sleep for optimal health 😴",
+            "Exercise 30 minutes daily to boost immunity 🏃",
+            "Eat colorful fruits & vegetables every day 🥗",
+            "Wash hands frequently to prevent illness 🧼",
+            "Take breaks from screens every 20 minutes 👀",
+            "Practice deep breathing to reduce stress 🧘",
+            "Schedule regular health check-ups 🩺",
+            "Limit processed foods and added sugars 🍎",
+            "Stay socially connected for mental health 💬",
+            "Protect your skin with daily sunscreen ☀️",
+            "Maintain good posture to prevent back pain 🪑"
+        ];
+        
+        let testResults = {
+            passed: 0,
+            failed: 0,
+            total: 0,
+            violations: []
+        };
+        
+        function logTest(testName, passed, message, details = null) {
+            testResults.total++;
+            if (passed) {
+                testResults.passed++;
+            } else {
+                testResults.failed++;
+                if (details) {
+                    testResults.violations.push(details);
+                }
+            }
+            
+            const resultDiv = document.createElement('div');
+            resultDiv.className = passed ? 'test-result test-pass' : 'test-result test-fail';
+            resultDiv.innerHTML = `
+                <strong>${passed ? '✓ PASS' : '✗ FAIL'}:</strong> ${testName}<br>
+                <span style="font-size: 0.9rem; opacity: 0.8;">${message}</span>
+            `;
+            return resultDiv;
+        }
+        
+        function logProgress(message) {
+            const progressDiv = document.getElementById('test-progress');
+            const progressItem = document.createElement('div');
+            progressItem.className = 'test-progress';
+            progressItem.innerHTML = `<strong>⏳ Progress:</strong> ${message}`;
+            progressDiv.appendChild(progressItem);
+        }
+        
+        // Property test for animation class application order
+        async function testAnimationClassProperty() {
+            const resultsContainer = document.getElementById('test-results');
+            const healthTipElement = document.getElementById('healthTipText');
+            
+            // Configuration
+            const NUM_TRANSITIONS_TO_TEST = 5;
+            const FADE_OUT_DURATION = 800; // milliseconds
+            
+            logProgress(`Starting property test with ${NUM_TRANSITIONS_TO_TEST} transitions...`);
+            
+            // Setup: Initialize the health tips system
+            let currentTipIndex = 0;
+            const transitionRecords = [];
+            
+            // MutationObserver to track class changes
+            const classChangeLog = [];
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                        const timestamp = Date.now();
+                        const classList = Array.from(healthTipElement.classList);
+                        classChangeLog.push({
+                            timestamp,
+                            classes: classList,
+                            hasFadeIn: classList.includes('fade-in'),
+                            hasFadeOut: classList.includes('fade-out')
+                        });
+                    }
+                });
+            });
+            
+            // Start observing
+            observer.observe(healthTipElement, {
+                attributes: true,
+                attributeFilter: ['class']
+            });
+            
+            // Function to rotate health tip (same logic as index.html)
+            function rotateHealthTip() {
+                if (!healthTipElement) return;
+                
+                const transitionStartTime = Date.now();
+                const beforeClasses = Array.from(healthTipElement.classList);
+                
+                // Apply fade-out animation
+                healthTipElement.classList.remove('fade-in');
+                healthTipElement.classList.add('fade-out');
+                
+                // Wait for fade-out to complete, then update text and fade in
+                setTimeout(() => {
+                    // Update to next tip
+                    currentTipIndex = (currentTipIndex + 1) % healthTips.length;
+                    healthTipElement.textContent = healthTips[currentTipIndex];
+                    
+                    // Apply fade-in animation
+                    healthTipElement.classList.remove('fade-out');
+                    healthTipElement.classList.add('fade-in');
+                    
+                    const transitionEndTime = Date.now();
+                    transitionRecords.push({
+                        startTime: transitionStartTime,
+                        endTime: transitionEndTime,
+                        beforeClasses,
+                        afterClasses: Array.from(healthTipElement.classList)
+                    });
+                }, FADE_OUT_DURATION);
+            }
+            
+            // Initialize first tip
+            healthTipElement.textContent = healthTips[0];
+            healthTipElement.classList.add('fade-in');
+            healthTipElement.style.display = 'block';
+            
+            logProgress('First tip displayed, starting transition monitoring...');
+            
+            // Perform transitions and collect data
+            return new Promise((resolve) => {
+                let transitionCount = 0;
+                const intervalId = setInterval(() => {
+                    rotateHealthTip();
+                    transitionCount++;
+                    
+                    logProgress(`Transition ${transitionCount}/${NUM_TRANSITIONS_TO_TEST} initiated`);
+                    
+                    if (transitionCount >= NUM_TRANSITIONS_TO_TEST) {
+                        clearInterval(intervalId);
+                        
+                        // Wait for last transition to complete
+                        setTimeout(() => {
+                            observer.disconnect();
+                            logProgress('All transitions completed, analyzing class application order...');
+                            
+                            // Analyze the results
+                            analyzeTransitions();
+                            resolve();
+                        }, FADE_OUT_DURATION + 200);
+                    }
+                }, 1500); // Faster than normal for testing (1.5s instead of 5s)
+            });
+            
+            function analyzeTransitions() {
+                // Test 1: Verify we collected the expected number of transitions
+                const test1 = transitionRecords.length === NUM_TRANSITIONS_TO_TEST;
+                resultsContainer.appendChild(
+                    logTest(
+                        'Correct number of transitions recorded',
+                        test1,
+                        test1 
+                            ? `Recorded ${transitionRecords.length} transitions` 
+                            : `Expected ${NUM_TRANSITIONS_TO_TEST} transitions, got ${transitionRecords.length}`
+                    )
+                );
+                
+                // Test 2: Property test - For each transition, verify fade-out comes before fade-in
+                let allTransitionsValid = true;
+                const transitionDetails = [];
+                
+                // Group class changes by transition
+                let currentTransitionIndex = 0;
+                transitionRecords.forEach((record, index) => {
+                    const transitionStart = record.startTime;
+                    const transitionEnd = record.endTime;
+                    
+                    // Find all class changes during this transition
+                    const relevantChanges = classChangeLog.filter(log => 
+                        log.timestamp >= transitionStart && log.timestamp <= transitionEnd
+                    );
+                    
+                    // Analyze the sequence
+                    let fadeOutAppliedFirst = false;
+                    let fadeInAppliedAfter = false;
+                    let fadeOutTimestamp = null;
+                    let fadeInTimestamp = null;
+                    
+                    for (let i = 0; i < relevantChanges.length; i++) {
+                        const change = relevantChanges[i];
+                        
+                        // Check if fade-out was applied
+                        if (change.hasFadeOut && !change.hasFadeIn) {
+                            fadeOutAppliedFirst = true;
+                            fadeOutTimestamp = change.timestamp;
+                        }
+                        
+                        // Check if fade-in was applied after fade-out
+                        if (fadeOutAppliedFirst && change.hasFadeIn && !change.hasFadeOut) {
+                            fadeInAppliedAfter = true;
+                            fadeInTimestamp = change.timestamp;
+                            break;
+                        }
+                    }
+                    
+                    const isValid = fadeOutAppliedFirst && fadeInAppliedAfter;
+                    const timeDiff = fadeInTimestamp && fadeOutTimestamp ? 
+                        fadeInTimestamp - fadeOutTimestamp : null;
+                    
+                    transitionDetails.push({
+                        index: index + 1,
+                        valid: isValid,
+                        fadeOutFirst: fadeOutAppliedFirst,
+                        fadeInAfter: fadeInAppliedAfter,
+                        timeDiff,
+                        changes: relevantChanges.length
+                    });
+                    
+                    if (!isValid) {
+                        allTransitionsValid = false;
+                        testResults.violations.push({
+                            transition: index + 1,
+                            fadeOutFirst: fadeOutAppliedFirst,
+                            fadeInAfter: fadeInAppliedAfter
+                        });
+                    }
+                });
+                
+                resultsContainer.appendChild(
+                    logTest(
+                        'Property: Fade-out applied before fade-in for all transitions',
+                        allTransitionsValid,
+                        allTransitionsValid 
+                            ? `All ${NUM_TRANSITIONS_TO_TEST} transitions follow correct animation order` 
+                            : `${testResults.violations.length} transition(s) violated the property`
+                    )
+                );
+                
+                // Test 3: Verify fade-out class is removed before fade-in is added
+                let noOverlap = true;
+                classChangeLog.forEach((log, index) => {
+                    if (log.hasFadeIn && log.hasFadeOut) {
+                        noOverlap = false;
+                    }
+                });
+                
+                resultsContainer.appendChild(
+                    logTest(
+                        'No simultaneous fade-in and fade-out classes',
+                        noOverlap,
+                        noOverlap 
+                            ? 'Classes are properly mutually exclusive' 
+                            : 'Found instances where both classes were present simultaneously'
+                    )
+                );
+                
+                // Test 4: Verify timing between fade-out and fade-in
+                const timings = transitionDetails
+                    .filter(d => d.timeDiff !== null)
+                    .map(d => d.timeDiff);
+                
+                if (timings.length > 0) {
+                    const avgTiming = timings.reduce((sum, t) => sum + t, 0) / timings.length;
+                    const expectedTiming = FADE_OUT_DURATION;
+                    const timingTolerance = 100; // ±100ms
+                    const timingValid = Math.abs(avgTiming - expectedTiming) <= timingTolerance;
+                    
+                    resultsContainer.appendChild(
+                        logTest(
+                            'Timing between fade-out and fade-in is correct',
+                            timingValid,
+                            `Average delay: ${avgTiming.toFixed(0)}ms (Expected: ${expectedTiming}ms ±${timingTolerance}ms)`
+                        )
+                    );
+                }
+                
+                // Display detailed breakdown
+                const detailsDiv = document.createElement('div');
+                detailsDiv.className = 'transition-details';
+                detailsDiv.innerHTML = '<strong>Detailed Transition Analysis:</strong><br><br>';
+                
+                transitionDetails.forEach(detail => {
+                    const statusIcon = detail.valid ? '✓' : '✗';
+                    const statusColor = detail.valid ? '#00ff88' : '#ff6b6b';
+                    detailsDiv.innerHTML += `
+                        <div class="transition-item">
+                            <span style="color: ${statusColor};">${statusIcon}</span>
+                            <strong>Transition ${detail.index}:</strong><br>
+                            <span style="opacity: 0.8;">
+                                Fade-out applied first: ${detail.fadeOutFirst ? 'Yes' : 'No'}<br>
+                                Fade-in applied after: ${detail.fadeInAfter ? 'Yes' : 'No'}<br>
+                                ${detail.timeDiff !== null ? `Time between: ${detail.timeDiff}ms<br>` : ''}
+                                Class changes observed: ${detail.changes}
+                            </span>
+                        </div>
+                    `;
+                });
+                
+                resultsContainer.appendChild(detailsDiv);
+                
+                // Test 5: Verify class change log integrity
+                const hasClassChanges = classChangeLog.length > 0;
+                resultsContainer.appendChild(
+                    logTest(
+                        'Class changes were successfully monitored',
+                        hasClassChanges,
+                        `Recorded ${classChangeLog.length} class change events`
+                    )
+                );
+            }
+        }
+        
+        // Run tests on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            await testAnimationClassProperty();
+            
+            // Display summary
+            const summaryDiv = document.getElementById('summary');
+            const allPassed = testResults.failed === 0;
+            
+            let violationDetails = '';
+            if (testResults.violations.length > 0) {
+                violationDetails = '<div style="margin-top: 15px; text-align: left;"><strong>Violations:</strong><br>';
+                testResults.violations.forEach(v => {
+                    violationDetails += `<div style="margin: 10px 0; padding: 10px; background: rgba(255, 0, 0, 0.1); border-radius: 5px;">
+                        <strong>Transition ${v.transition}:</strong><br>
+                        <span style="opacity: 0.8; font-size: 0.9rem;">
+                            Fade-out applied first: ${v.fadeOutFirst ? 'Yes' : 'No'}<br>
+                            Fade-in applied after: ${v.fadeInAfter ? 'Yes' : 'No'}
+                        </span>
+                    </div>`;
+                });
+                violationDetails += '</div>';
+            }
+            
+            summaryDiv.innerHTML = `
+                <h2>${allPassed ? '✓ Property Test Passed!' : '✗ Property Test Failed'}</h2>
+                <p style="font-size: 1.2rem;">
+                    <strong>${testResults.passed}</strong> passed, 
+                    <strong>${testResults.failed}</strong> failed, 
+                    <strong>${testResults.total}</strong> total
+                </p>
+                ${allPassed 
+                    ? '<p style="color: #00ff88;">All transitions correctly apply fade-out before fade-in!</p>' 
+                    : '<p style="color: #ff6b6b;">Some transitions violated the animation class application property.</p>'}
+                ${violationDetails}
+            `;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patternstein - Dynamic UI Test</title>
+    <link rel="icon" type="image/svg+xml" href="kolam-favicon.svg?v=2">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+            overflow-y: auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #00d4ff 0%, #0099cc 100%);
+            border-radius: 10px;
+            border: 2px solid rgba(0, 0, 0, 0.3);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #00e6ff 0%, #00b3e6 100%);
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        /* Floating Medical Icons */
+        .floating-image {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.6;
+            font-size: 60px;
+            filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.4));
+        }
+
+        .floating-image:nth-child(1) { animation: float1 20s infinite ease-in-out; }
+        .floating-image:nth-child(2) { animation: float2 25s infinite ease-in-out; }
+        .floating-image:nth-child(3) { animation: float3 22s infinite ease-in-out; }
+        .floating-image:nth-child(4) { animation: float4 28s infinite ease-in-out; }
+        .floating-image:nth-child(5) { animation: float5 24s infinite ease-in-out; }
+        .floating-image:nth-child(6) { animation: float6 26s infinite ease-in-out; }
+        .floating-image:nth-child(7) { animation: float7 23s infinite ease-in-out; }
+        .floating-image:nth-child(8) { animation: float8 27s infinite ease-in-out; }
+
+        @keyframes float1 {
+            0%, 100% { transform: translate(10vw, 10vh) rotate(0deg); }
+            25% { transform: translate(80vw, 20vh) rotate(90deg); }
+            50% { transform: translate(70vw, 70vh) rotate(180deg); }
+            75% { transform: translate(20vw, 60vh) rotate(270deg); }
+        }
+
+        @keyframes float2 {
+            0%, 100% { transform: translate(80vw, 15vh) rotate(0deg); }
+            25% { transform: translate(15vw, 40vh) rotate(-90deg); }
+            50% { transform: translate(75vw, 65vh) rotate(-180deg); }
+            75% { transform: translate(40vw, 25vh) rotate(-270deg); }
+        }
+
+        @keyframes float3 {
+            0%, 100% { transform: translate(50vw, 80vh) rotate(0deg); }
+            25% { transform: translate(85vw, 50vh) rotate(120deg); }
+            50% { transform: translate(10vw, 30vh) rotate(240deg); }
+            75% { transform: translate(60vw, 10vh) rotate(360deg); }
+        }
+
+        @keyframes float4 {
+            0%, 100% { transform: translate(25vw, 70vh) rotate(0deg); }
+            25% { transform: translate(70vw, 85vh) rotate(-120deg); }
+            50% { transform: translate(30vw, 20vh) rotate(-240deg); }
+            75% { transform: translate(85vw, 40vh) rotate(-360deg); }
+        }
+
+        @keyframes float5 {
+            0%, 100% { transform: translate(60vw, 30vh) rotate(0deg); }
+            25% { transform: translate(20vw, 75vh) rotate(90deg); }
+            50% { transform: translate(80vw, 60vh) rotate(180deg); }
+            75% { transform: translate(45vw, 15vh) rotate(270deg); }
+        }
+
+        @keyframes float6 {
+            0%, 100% { transform: translate(15vw, 50vh) rotate(0deg); }
+            25% { transform: translate(75vw, 25vh) rotate(-90deg); }
+            50% { transform: translate(35vw, 80vh) rotate(-180deg); }
+            75% { transform: translate(65vw, 45vh) rotate(-270deg); }
+        }
+
+        @keyframes float7 {
+            0%, 100% { transform: translate(40vw, 65vh) rotate(0deg); }
+            25% { transform: translate(85vw, 30vh) rotate(120deg); }
+            50% { transform: translate(25vw, 45vh) rotate(240deg); }
+            75% { transform: translate(55vw, 75vh) rotate(360deg); }
+        }
+
+        @keyframes float8 {
+            0%, 100% { transform: translate(70vw, 55vh) rotate(0deg); }
+            25% { transform: translate(30vw, 35vh) rotate(-120deg); }
+            50% { transform: translate(80vw, 75vh) rotate(-240deg); }
+            75% { transform: translate(20vw, 60vh) rotate(-360deg); }
+        }
+
+        /* Doctor on Scrollbar */
+        .doctor-scrollbar {
+            position: fixed;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1000;
+            pointer-events: none;
+            transition: top 0.1s ease-out;
+            font-size: 100px;
+            filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.8));
+            animation: doctorPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes doctorPulse {
+            0%, 100% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-50%) scale(1.1); }
+        }
+
+        /* Logo */
+        .logo {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            width: 80px;
+            height: 80px;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s ease;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.8));
+        }
+
+        .logo:hover {
+            transform: scale(1.1) rotate(5deg);
+            filter: drop-shadow(0 0 15px rgba(0, 212, 255, 0.6));
+        }
+
+        /* Navigation */
+        .nav-menu {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            z-index: 100;
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-link:hover {
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+            transform: translateY(-2px);
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-content {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            min-width: 250px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .dropdown:hover .dropdown-content {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: block;
+            color: #ccc;
+            text-decoration: none;
+            padding: 12px 20px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+            padding-left: 25px;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: url('hero-eye.jpg') center/cover no-repeat;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 100%;
+            padding: 0 20px;
+        }
+
+        h1 {
+            font-size: clamp(4rem, 12vw, 8rem);
+            margin: 0;
+            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.9);
+            color: #fff;
+            font-weight: bold;
+            letter-spacing: 4px;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #00d4ff;
+            animation: bounce 2s infinite;
+            z-index: 2;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+
+        /* Laboratory Section */
+        .laboratory {
+            background: #000;
+            padding: 100px 30px;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        .lab-title {
+            text-align: center;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            color: #00d4ff;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
+            margin-bottom: 80px;
+            font-style: italic;
+        }
+
+        .lab-subtitle {
+            text-align: center;
+            font-size: 1.3rem;
+            color: #ccc;
+            margin-bottom: 60px;
+            font-style: italic;
+        }
+
+        /* Story Cards with Wave Animation */
+        .story-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .story-card {
+            position: relative;
+            margin: 150px 0;
+            height: 250px;
+            overflow: visible;
+        }
+
+        .card-content {
+            position: absolute;
+            background: rgba(0, 212, 255, 0.05);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 40px rgba(0, 212, 255, 0.2);
+            animation: waveSlide 8s ease-in-out infinite;
+            width: 80%;
+            max-width: 700px;
+        }
+
+        .story-card:nth-child(1) .card-content {
+            animation-delay: 0s;
+        }
+
+        .story-card:nth-child(2) .card-content {
+            animation-delay: 2.5s;
+        }
+
+        .story-card:nth-child(3) .card-content {
+            animation-delay: 5s;
+        }
+
+        @keyframes waveSlide {
+            0% {
+                left: -100%;
+                opacity: 0;
+                transform: translateY(0) scale(0.8);
+            }
+            15% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                left: 50%;
+                transform: translateX(-50%) translateY(-20px) scale(1.05);
+            }
+            85% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                left: 120%;
+                opacity: 0;
+                transform: translateY(0) scale(0.8);
+            }
+        }
+
+        .story-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            display: block;
+            animation: iconPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .story-title {
+            font-size: 2rem;
+            color: #00d4ff;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .story-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #ccc;
+        }
+
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            border-top: 2px solid #00d4ff;
+            padding: 20px 0;
+            position: relative;
+            z-index: 10;
+            margin-top: 100px;
+        }
+
+        .footer-content {
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .patternstein-link {
+            color: #00d4ff;
+            font-size: 1.2rem;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .patternstein-link:hover {
+            color: #00e6ff;
+            text-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Medical Halloween Icons -->
+    <div class="floating-image">🎃</div>
+    <div class="floating-image">💉</div>
+    <div class="floating-image">🩺</div>
+    <div class="floating-image">🧪</div>
+    <div class="floating-image">⚗️</div>
+    <div class="floating-image">💊</div>
+    <div class="floating-image">🫀</div>
+    <div class="floating-image">🧬</div>
+
+    <!-- Doctor on Scrollbar -->
+    <div class="doctor-scrollbar" id="doctorScroll">🧑‍⚕️</div>
+
+    <!-- Logo -->
+    <div class="logo" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+            <rect width="100" height="100" fill="#00d4ff" rx="15" />
+            <g fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M30 15 Q35 10 40 15 Q45 20 50 15 Q55 10 60 15 Q65 20 70 15" />
+                <circle cx="35" cy="15" r="1.5" fill="white" />
+                <circle cx="50" cy="15" r="1.5" fill="white" />
+                <circle cx="65" cy="15" r="1.5" fill="white" />
+                <path d="M20 25 Q25 20 30 25 Q35 30 40 25 Q45 20 50 25 Q55 30 60 25 Q65 20 70 25 Q75 30 80 25" />
+                <circle cx="25" cy="25" r="1.5" fill="white" />
+                <circle cx="50" cy="25" r="1.5" fill="white" />
+                <circle cx="75" cy="25" r="1.5" fill="white" />
+            </g>
+        </svg>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="nav-menu">
+        <div class="nav-item">
+            <a href="#about" class="nav-link">About</a>
+        </div>
+        <div class="nav-item dropdown">
+            <a href="#" class="nav-link">
+                Agents
+                <span>▼</span>
+            </a>
+            <div class="dropdown-content">
+                <a href="pathology-agent.html" class="dropdown-item">Pathology Pattern Agent</a>
+                <a href="vitals-agent.html" class="dropdown-item">Vital Signs Rhythm Agent</a>
+                <a href="language-agent.html" class="dropdown-item">Symptom Language Agent</a>
+                <a href="patternstein.html" class="dropdown-item">Patternstein</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="hero-content">
+            <h1><a href="patternstein.html" style="color: inherit; text-decoration: none; transition: all 0.3s ease;"
+                    onmouseover="this.style.color='#00d4ff'; this.style.textShadow='0 0 20px rgba(0, 212, 255, 1), 0 0 40px rgba(0, 212, 255, 0.8), 0 0 60px rgba(0, 212, 255, 0.6)'"
+                    onmouseout="this.style.color='#fff'; this.style.textShadow='4px 4px 8px rgba(0, 0, 0, 0.9)'">PATTERNSTEIN</a>
+            </h1>
+        </div>
+
+        <div class="scroll-indicator">
+            <div style="font-size: 24px;">↓</div>
+        </div>
+    </div>
+
+    <!-- Laboratory Section -->
+    <section id="about" class="laboratory">
+        <h2 class="lab-title">THE LABORATORY</h2>
+        <p class="lab-subtitle">Coded in the Dark, Trained to Find the Light</p>
+
+        <div class="story-grid">
+            <!-- Story Card 1: The Experiment -->
+            <div class="story-card">
+                <div class="card-content">
+                    <span class="story-icon">🧪</span>
+                    <div class="story-title">The Experiment</div>
+                    <div class="story-text">
+                        Three incompatible AI agents - Pathology, Vitals, Language - stitched together in the depths of Kiroween night.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Story Card 2: The Formula -->
+            <div class="story-card">
+                <div class="card-content">
+                    <span class="story-icon">⚗️</span>
+                    <div class="story-title">The Formula</div>
+                    <div class="story-text">
+                        Each brilliant alone but unable to communicate. Together, they would become extraordinary.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Story Card 3: The Awakening -->
+            <div class="story-card">
+                <div class="card-content">
+                    <span class="story-icon">⚡</span>
+                    <div class="story-title">The Awakening</div>
+                    <div class="story-text">
+                        Lightning struck. Three agents fused into Patternstein - 8X more powerful. The impossible became inevitable.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p><a href="index.html" class="patternstein-link">Patternstein 2026</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // Doctor follows scroll position
+        window.addEventListener('scroll', () => {
+            const doctor = document.getElementById('doctorScroll');
+            const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+            const maxTop = window.innerHeight - 150;
+            doctor.style.top = (scrollPercent * maxTop) + 'px';
+        });
+
+        // Add random variation to floating images
+        document.querySelectorAll('.floating-image').forEach((img, index) => {
+            const delay = Math.random() * 5;
+            img.style.animationDelay = `-${delay}s`;
+        });
+    </script>
+</body>
+</html>

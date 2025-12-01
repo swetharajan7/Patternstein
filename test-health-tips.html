@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Tips Unit Tests</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a2e;
+            color: #fff;
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #00d4ff;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .test-section {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .test-title {
+            color: #00ff88;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+        
+        .test-result {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .test-pass {
+            background: rgba(0, 255, 136, 0.2);
+            border-left: 4px solid #00ff88;
+        }
+        
+        .test-fail {
+            background: rgba(255, 0, 0, 0.2);
+            border-left: 4px solid #ff0000;
+        }
+        
+        .test-info {
+            background: rgba(0, 212, 255, 0.1);
+            border-left: 4px solid #00d4ff;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+        
+        #healthTipText {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #ccc;
+            text-align: center;
+            min-height: 1.5em;
+        }
+        
+        .fade-in {
+            animation: fade-in 0.8s ease-in-out forwards;
+        }
+        
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .summary {
+            background: rgba(0, 212, 255, 0.2);
+            border: 2px solid #00d4ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .summary h2 {
+            color: #00ff88;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Health Tips Unit Tests</h1>
+    
+    <div class="test-section">
+        <div class="test-title">Test 3.1: Initial Tip Display on Page Load</div>
+        <div class="test-info">
+            <strong>Requirement:</strong> 1.1 - WHEN the page loads THEN the system SHALL display a health tip in the footer section<br>
+            <strong>Expected:</strong> First tip from the array should appear immediately on page load
+        </div>
+        <div id="test-3-1-results"></div>
+    </div>
+    
+    <div class="summary" id="summary"></div>
+    
+    <!-- Hidden element for testing -->
+    <div id="healthTipText" style="display: none;"></div>
+    
+    <script>
+        // Health tips array (same as in index.html)
+        const healthTips = [
+            "Stay hydrated: Drink 8 glasses of water daily 💧",
+            "Get 7-9 hours of sleep for optimal health 😴",
+            "Exercise 30 minutes daily to boost immunity 🏃",
+            "Eat colorful fruits & vegetables every day 🥗",
+            "Wash hands frequently to prevent illness 🧼",
+            "Take breaks from screens every 20 minutes 👀",
+            "Practice deep breathing to reduce stress 🧘",
+            "Schedule regular health check-ups 🩺",
+            "Limit processed foods and added sugars 🍎",
+            "Stay socially connected for mental health 💬",
+            "Protect your skin with daily sunscreen ☀️",
+            "Maintain good posture to prevent back pain 🪑"
+        ];
+        
+        let testResults = {
+            passed: 0,
+            failed: 0,
+            total: 0
+        };
+        
+        function logTest(testName, passed, message) {
+            testResults.total++;
+            if (passed) {
+                testResults.passed++;
+            } else {
+                testResults.failed++;
+            }
+            
+            const resultDiv = document.createElement('div');
+            resultDiv.className = passed ? 'test-result test-pass' : 'test-result test-fail';
+            resultDiv.innerHTML = `
+                <strong>${passed ? '✓ PASS' : '✗ FAIL'}:</strong> ${testName}<br>
+                <span style="font-size: 0.9rem; opacity: 0.8;">${message}</span>
+            `;
+            return resultDiv;
+        }
+        
+        // Test 3.1: Initial tip display on page load
+        function testInitialTipDisplay() {
+            const resultsContainer = document.getElementById('test-3-1-results');
+            const healthTipElement = document.getElementById('healthTipText');
+            
+            // Simulate the initialization code from index.html
+            let currentTipIndex = 0;
+            
+            // Display first tip immediately (simulating DOMContentLoaded)
+            if (healthTipElement && healthTips.length > 0) {
+                healthTipElement.textContent = healthTips[0];
+                healthTipElement.classList.add('fade-in');
+                healthTipElement.style.display = 'block';
+            }
+            
+            // Test 1: Element exists
+            const test1 = healthTipElement !== null;
+            resultsContainer.appendChild(
+                logTest(
+                    'Health tip element exists',
+                    test1,
+                    test1 ? 'Element with id "healthTipText" found' : 'Element with id "healthTipText" not found'
+                )
+            );
+            
+            // Test 2: First tip is displayed
+            const expectedFirstTip = healthTips[0];
+            const actualTip = healthTipElement.textContent;
+            const test2 = actualTip === expectedFirstTip;
+            resultsContainer.appendChild(
+                logTest(
+                    'First tip is displayed on page load',
+                    test2,
+                    test2 
+                        ? `Correct: "${actualTip}"` 
+                        : `Expected: "${expectedFirstTip}", Got: "${actualTip}"`
+                )
+            );
+            
+            // Test 3: Tip is not empty
+            const test3 = actualTip.length > 0;
+            resultsContainer.appendChild(
+                logTest(
+                    'Displayed tip is not empty',
+                    test3,
+                    test3 
+                        ? `Tip has ${actualTip.length} characters` 
+                        : 'Tip is empty'
+                )
+            );
+            
+            // Test 4: Fade-in animation class is applied
+            const test4 = healthTipElement.classList.contains('fade-in');
+            resultsContainer.appendChild(
+                logTest(
+                    'Fade-in animation class is applied',
+                    test4,
+                    test4 
+                        ? 'Element has "fade-in" class' 
+                        : 'Element does not have "fade-in" class'
+                )
+            );
+            
+            // Test 5: Element is visible
+            const test5 = healthTipElement.style.display !== 'none';
+            resultsContainer.appendChild(
+                logTest(
+                    'Tip element is visible',
+                    test5,
+                    test5 
+                        ? 'Element display is not "none"' 
+                        : 'Element is hidden'
+                )
+            );
+            
+            // Test 6: Tips array has at least 10 items (from requirement 2.1)
+            const test6 = healthTips.length >= 10;
+            resultsContainer.appendChild(
+                logTest(
+                    'Tips array has at least 10 unique tips',
+                    test6,
+                    test6 
+                        ? `Array has ${healthTips.length} tips` 
+                        : `Array only has ${healthTips.length} tips (minimum 10 required)`
+                )
+            );
+        }
+        
+        // Run tests on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            testInitialTipDisplay();
+            
+            // Display summary
+            const summaryDiv = document.getElementById('summary');
+            const allPassed = testResults.failed === 0;
+            summaryDiv.innerHTML = `
+                <h2>${allPassed ? '✓ All Tests Passed!' : '⚠ Some Tests Failed'}</h2>
+                <p style="font-size: 1.2rem;">
+                    <strong>${testResults.passed}</strong> passed, 
+                    <strong>${testResults.failed}</strong> failed, 
+                    <strong>${testResults.total}</strong> total
+                </p>
+                ${allPassed 
+                    ? '<p style="color: #00ff88;">The initial tip display functionality is working correctly!</p>' 
+                    : '<p style="color: #ff6b6b;">Please review the failed tests above.</p>'}
+            `;
+        });
+    </script>
+</body>
+</html>

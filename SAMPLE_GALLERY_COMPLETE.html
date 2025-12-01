@@ -1,0 +1,450 @@
+<!-- 
+    SAMPLE GALLERY SECTION
+    Insert this RIGHT AFTER the closing </div> of live-demo-section
+    and BEFORE the <div class="capabilities"> section
+-->
+
+<!-- Add these styles to your <style> section in the <head> -->
+<style>
+    .sample-gallery-section {
+        background: rgba(0, 212, 255, 0.05);
+        border: 2px solid rgba(0, 212, 255, 0.3);
+        border-radius: 20px;
+        padding: 40px;
+        margin-top: 40px;
+    }
+
+    .sample-gallery-section h3 {
+        color: #00d4ff;
+        font-size: 2rem;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .gallery-subtitle {
+        text-align: center;
+        color: #ccc;
+        margin-bottom: 30px;
+        font-size: 1.1rem;
+    }
+
+    .tissue-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 40px;
+    }
+
+    .tissue-tab {
+        padding: 12px 24px;
+        background: rgba(0, 212, 255, 0.1);
+        border: 2px solid rgba(0, 212, 255, 0.3);
+        border-radius: 10px;
+        color: #ccc;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: 'Courier New', monospace;
+    }
+
+    .tissue-tab:hover {
+        border-color: #00d4ff;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 212, 255, 0.2);
+    }
+
+    .tissue-tab.active {
+        background: linear-gradient(135deg, #00d4ff 0%, #00e6ff 100%);
+        border-color: #00d4ff;
+        color: #000;
+        font-weight: bold;
+        box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4);
+    }
+
+    .sample-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 30px;
+        margin-top: 30px;
+    }
+
+    .sample-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(0, 212, 255, 0.3);
+        border-radius: 15px;
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .sample-card:hover {
+        transform: translateY(-5px);
+        border-color: #00d4ff;
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+    }
+
+    .sample-card img {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        background: linear-gradient(135deg, #1a0a14 0%, #2d1428 100%);
+    }
+
+    .sample-label {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .sample-label.normal {
+        color: #00ff88;
+    }
+
+    .sample-label.abnormal {
+        color: #ff6b6b;
+    }
+
+    .sample-description {
+        color: #ccc;
+        font-size: 0.9rem;
+        text-align: center;
+        margin-bottom: 10px;
+        line-height: 1.4;
+    }
+
+    .sample-credit {
+        color: #888;
+        font-size: 0.75rem;
+        text-align: center;
+        font-style: italic;
+    }
+
+    .try-sample-btn {
+        width: 100%;
+        padding: 12px;
+        background: rgba(0, 212, 255, 0.2);
+        border: 2px solid rgba(0, 212, 255, 0.5);
+        border-radius: 8px;
+        color: #fff;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+        font-family: 'Courier New', monospace;
+    }
+
+    .try-sample-btn:hover {
+        background: rgba(0, 212, 255, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+    }
+
+    /* Light mode adjustments */
+    body.light-mode .sample-gallery-section {
+        background: rgba(255, 255, 255, 0.95);
+        border: 2px solid rgba(0, 212, 255, 0.3);
+    }
+
+    body.light-mode .sample-gallery-section h3 {
+        color: #0088cc;
+    }
+
+    body.light-mode .gallery-subtitle {
+        color: #4a5568;
+    }
+
+    body.light-mode .tissue-tab {
+        background: rgba(240, 248, 255, 0.8);
+        border: 2px solid rgba(0, 212, 255, 0.3);
+        color: #4a5568;
+    }
+
+    body.light-mode .tissue-tab.active {
+        background: linear-gradient(135deg, #0088cc 0%, #00aaff 100%);
+        color: #fff;
+    }
+
+    body.light-mode .sample-card {
+        background: rgba(240, 248, 255, 0.8);
+        border: 2px solid rgba(0, 212, 255, 0.2);
+    }
+
+    body.light-mode .sample-description {
+        color: #4a5568;
+    }
+
+    body.light-mode .try-sample-btn {
+        background: rgba(0, 212, 255, 0.1);
+        border: 2px solid rgba(0, 212, 255, 0.3);
+        color: #0088cc;
+    }
+
+    body.light-mode .try-sample-btn:hover {
+        background: rgba(0, 212, 255, 0.2);
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        .tissue-tabs {
+            gap: 8px;
+        }
+
+        .tissue-tab {
+            padding: 10px 16px;
+            font-size: 0.9rem;
+        }
+
+        .sample-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<!-- HTML Section - Insert this in your page body -->
+<div class="sample-gallery-section">
+    <h3>🖼️ Try Sample Images</h3>
+    <p class="gallery-subtitle">
+        Click any sample to instantly analyze it with our AI. No upload needed!
+    </p>
+
+    <!-- Tissue Type Tabs -->
+    <div class="tissue-tabs">
+        <button class="tissue-tab active" onclick="showTissueSamples('breast', event)">🎀 Breast</button>
+        <button class="tissue-tab" onclick="showTissueSamples('lung', event)">🫁 Lung</button>
+        <button class="tissue-tab" onclick="showTissueSamples('skin', event)">🩺 Skin</button>
+        <button class="tissue-tab" onclick="showTissueSamples('brain', event)">🧠 Brain</button>
+        <button class="tissue-tab" onclick="showTissueSamples('cervical', event)">🔬 Cervical</button>
+        <button class="tissue-tab" onclick="showTissueSamples('blood', event)">🩸 Blood</button>
+        <button class="tissue-tab" onclick="showTissueSamples('kidney', event)">🫘 Kidney</button>
+        <button class="tissue-tab" onclick="showTissueSamples('prostate', event)">⚕️ Prostate</button>
+    </div>
+
+    <!-- Sample Grid -->
+    <div class="sample-grid" id="sampleGrid">
+        <!-- Will be populated by JavaScript -->
+    </div>
+</div>
+
+<!-- Add this JavaScript at the end of your existing <script> section -->
+<script>
+    // Sample image data with placeholder support
+    const SAMPLE_DATA = {
+        breast: [
+            {
+                type: 'normal',
+                image: 'samples/breast/breast_normal.jpg',
+                placeholder: 'https://via.placeholder.com/400x250/1a0a14/00ff88?text=Normal+Breast+Tissue',
+                label: '✓ Normal Tissue',
+                description: 'Healthy breast tissue with normal ductal structures and organized cell patterns',
+                credit: 'Wikimedia Commons / Educational Use'
+            },
+            {
+                type: 'cancer',
+                image: 'samples/breast/breast_cancer.jpg',
+                placeholder: 'https://via.placeholder.com/400x250/1a0a14/ff6b6b?text=Breast+Cancer',
+                label: '⚠ Invasive Carcinoma',
+                description: 'Invasive ductal carcinoma showing irregular cell patterns and loss of normal architecture',
+                credit: 'Wikimedia Commons / Educational Use'
+            }
+        ],
+        lung: [
+            {
+                type: 'normal',
+                image: 'samples/lung/lung_normal.jpg',
+                placeholder: 'https://via.placeholder.com/400x250/1a0a14/00ff88?text=Normal+Lung+Tissue',
+                label: '✓ Normal Tissue',
+                description: 'Healthy lung alveoli with thin walls and normal architecture',
+                credit: 'Wikimedia Commons / Educational Use'
+            },
+            {
+                type: 'cancer',
+                image: 'samples/lung/lung_cancer.jpg',
+                placeholder: 'https://via.placeholder.com/400x250/1a0a14/ff6b6b?text=Lung+Cancer',
+                label: '⚠ Squamous Cell Carcinoma',
+                description: 'Malignant squamous cells with keratinization and cellular atypia',
+                credit: 'Wikimedia Commons / Educational Use'
+            }
+        ],
+        skin: [
+            {
+                type: 'normal',
+                image: 'samples/skin/skin_normal.jpg',
+                placeholder: 'https://via.placeholder.com/400x250/1a0a14/00ff88?text=Benign+Nevus',
+                label: '✓ Benign Nevus',
+                description: 'Benign mole with regular pigmentation and symmetric borders',
+                credit: 'Wikimedia Commons / Educational Use'
+            },
+            {
+                type: 'cancer',
+                image: 'samples/skin/skin_cancer.jpg',
+                placeholder: 'https://via.placeholder.com/400x250/1a0a14/ff6b6b?text=Melanoma',
+                label: '⚠ Melanoma',
+                description: 'Malignant melanoma with irregular borders and varied pigmentation',
+                credit: 'Wikimedia Commons / Educational Use'
+            }
+        ],
+        brain: [
+            {
+                type: 'normal',
+                image: 'samples/brain/brain_normal.jpg',
+                placeholder: 'https://via.placeholder.com/400x250/1a0a14/00ff88?text=Normal+Brain+Cortex',
+                label: '✓ Normal Cortex',
+                description: 'Healthy brain cortex with organized neuronal layers',
+                credit: 'Wikimedia Commons / Educational Use'
+            },
+            {
+                type: 'cancer',
+                image: 'samples/brain/brain_cancer.jpg',
+                placeholder: 'https://via.placeholder.com/400x250/1a0a14/ff6b6b?text=Glioblastoma',
+                label: '⚠ Glioblastoma',
+                description: 'Aggressive brain tumor with necrosis and vascular proliferation',
+                credit: 'Wikimedia Commons / Educational Use'
+            }
+        ],
+        cervical: [
+            {
+                type: 'normal',
+                image: 'samples/cervical/cervical_normal.jpg',
+                placeholder: 'https://via.placeholder.com/400x250/1a0a14/00ff88?text=Normal+Cervical+Tissue',
+                label: '✓ Normal Tissue',
+                description: 'Healthy cervical epithelium with normal cell maturation',
+                credit: 'Wikimedia Commons / Educational Use'
+            },
+            {
+                type: 'cancer',
+                image: 'samples/cervical/cervical_cancer.jpg',
+                placeholder: 'https://via.placeholder.com/400x250/1a0a14/ff6b6b?text=Cervical+Carcinoma',
+                label: '⚠ Cervical Carcinoma',
+                description: 'Invasive cervical cancer with abnormal cell proliferation',
+                credit: 'Wikimedia Commons / Educational Use'
+            }
+        ],
+        blood: [
+            {
+                type: 'normal',
+                image: 'samples/blood/blood_normal.jpg',
+                placeholder: 'https://via.placeholder.com/400x250/1a0a14/00ff88?text=Normal+Blood+Cells',
+                label: '✓ Normal Blood',
+                description: 'Healthy red and white blood cells with normal morphology',
+                credit: 'Wikimedia Commons / Educational Use'
+            },
+            {
+                type: 'cancer',
+                image: 'samples/blood/blood_cancer.jpg',
+                placeholder: 'https://via.placeholder.com/400x250/1a0a14/ff6b6b?text=Acute+Leukemia',
+                label: '⚠ Acute Leukemia',
+                description: 'Abnormal blast cells in blood smear indicating leukemia',
+                credit: 'Wikimedia Commons / Educational Use'
+            }
+        ],
+        kidney: [
+            {
+                type: 'normal',
+                image: 'samples/kidney/kidney_normal.jpg',
+                placeholder: 'https://via.placeholder.com/400x250/1a0a14/00ff88?text=Normal+Kidney+Glomerulus',
+                label: '✓ Normal Glomerulus',
+                description: 'Healthy kidney glomerulus with intact capillary loops',
+                credit: 'Wikimedia Commons / Educational Use'
+            },
+            {
+                type: 'cancer',
+                image: 'samples/kidney/kidney_cancer.jpg',
+                placeholder: 'https://via.placeholder.com/400x250/1a0a14/ff6b6b?text=Renal+Cell+Carcinoma',
+                label: '⚠ Renal Cell Carcinoma',
+                description: 'Clear cell renal carcinoma with characteristic appearance',
+                credit: 'Wikimedia Commons / Educational Use'
+            }
+        ],
+        prostate: [
+            {
+                type: 'normal',
+                image: 'samples/prostate/prostate_normal.jpg',
+                placeholder: 'https://via.placeholder.com/400x250/1a0a14/00ff88?text=Normal+Prostate+Gland',
+                label: '✓ Normal Gland',
+                description: 'Healthy prostate glandular tissue with regular architecture',
+                credit: 'Wikimedia Commons / Educational Use'
+            },
+            {
+                type: 'cancer',
+                image: 'samples/prostate/prostate_cancer.jpg',
+                placeholder: 'https://via.placeholder.com/400x250/1a0a14/ff6b6b?text=Prostate+Adenocarcinoma',
+                label: '⚠ Adenocarcinoma',
+                description: 'Prostate adenocarcinoma showing Gleason pattern abnormalities',
+                credit: 'Wikimedia Commons / Educational Use'
+            }
+        ]
+    };
+
+    // Initialize gallery with breast samples
+    document.addEventListener('DOMContentLoaded', function() {
+        showTissueSamples('breast', null);
+    });
+
+    function showTissueSamples(tissueType, event) {
+        // Update tab states
+        document.querySelectorAll('.tissue-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        if (event) {
+            event.target.classList.add('active');
+        } else {
+            // Initial load
+            document.querySelector('.tissue-tab').classList.add('active');
+        }
+
+        // Get samples for this tissue type
+        const samples = SAMPLE_DATA[tissueType];
+        const grid = document.getElementById('sampleGrid');
+
+        // Build HTML
+        grid.innerHTML = samples.map(sample => `
+            <div class="sample-card" onclick="loadSampleImage('${tissueType}', '${sample.type}')">
+                <img src="${sample.image}" alt="${sample.label}" 
+                     onerror="this.src='${sample.placeholder}'">
+                <div class="sample-label ${sample.type === 'normal' ? 'normal' : 'abnormal'}">${sample.label}</div>
+                <div class="sample-description">${sample.description}</div>
+                <div class="sample-credit">${sample.credit}</div>
+                <button class="try-sample-btn" onclick="event.stopPropagation(); loadSampleImage('${tissueType}', '${sample.type}')">
+                    🔍 Analyze This Sample
+                </button>
+            </div>
+        `).join('');
+    }
+
+    function loadSampleImage(tissueType, sampleType) {
+        // Find the sample data
+        const sample = SAMPLE_DATA[tissueType].find(s => s.type === sampleType);
+        if (!sample) return;
+
+        // Try to load the real image, fall back to placeholder
+        const imageUrl = sample.image;
+        
+        fetch(imageUrl)
+            .then(response => {
+                if (!response.ok) throw new Error('Image not found');
+                return response.blob();
+            })
+            .catch(() => {
+                // If real image fails, use placeholder
+                return fetch(sample.placeholder).then(r => r.blob());
+            })
+            .then(blob => {
+                const file = new File([blob], `${tissueType}_${sampleType}.jpg`, { type: 'image/jpeg' });
+                handleFile(file);
+                
+                // Scroll to the analyzer
+                const uploadArea = document.getElementById('uploadArea');
+                if (uploadArea) {
+                    uploadArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            })
+            .catch(error => {
+                console.error('Error loading sample:', error);
+                alert('Could not load sample image. Please try uploading your own image.');
+            });
+    }
+</script>

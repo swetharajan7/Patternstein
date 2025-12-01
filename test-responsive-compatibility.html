@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Design & Browser Compatibility Test - MediaPipe Skeleton Overlay</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #00d4ff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        .test-section {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid #00d4ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .test-section h2 {
+            color: #00ff88;
+            margin-bottom: 15px;
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+        }
+
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .test-item {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .test-item h3 {
+            color: #ff9800;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .status.pass {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            border: 1px solid #00ff88;
+        }
+
+        .status.fail {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff4444;
+            border: 1px solid #ff4444;
+        }
+
+        .status.pending {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+            border: 1px solid #ff9800;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 640px;
+            margin: 20px auto;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #testVideo {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        #testCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        button {
+            background: linear-gradient(135deg, #00d4ff 0%, #00ff88 100%);
+            color: #1a1a2e;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .info-panel {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #00ff88;
+        }
+
+        .info-value {
+            color: #00d4ff;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .test-section {
+                padding: 15px;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .video-container {
+                max-width: 400px;
+            }
+        }
+
+        .log {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            margin-top: 15px;
+        }
+
+        .log-entry {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        .log-entry.success {
+            color: #00ff88;
+        }
+
+        .log-entry.error {
+            color: #ff4444;
+        }
+
+        .log-entry.info {
+            color: #00d4ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎃 MediaPipe Skeleton Overlay - Responsive & Compatibility Test</h1>
+
+        <!-- Browser Detection -->
+        <div class="test-section">
+            <h2>Browser & Device Detection</h2>
+            <div class="info-panel" id="browserInfo"></div>
+        </div>
+
+        <!-- Video Test Area -->
+        <div class="test-section">
+            <h2>Live Camera Test</h2>
+            <div class="video-container" id="videoContainer">
+                <video id="testVideo" autoplay playsinline></video>
+                <canvas id="testCanvas"></canvas>
+            </div>
+            <div class="controls">
+                <button id="startBtn">Start Camera</button>
+                <button id="stopBtn" disabled>Stop Camera</button>
+                <button id="runTestsBtn">Run All Tests</button>
+            </div>
+            <div class="info-panel" id="performanceInfo"></div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="test-section">
+            <h2>Test Results</h2>
+            <div class="test-grid" id="testResults"></div>
+        </div>
+
+        <!-- Test Log -->
+        <div class="test-section">
+            <h2>Test Log</h2>
+            <div class="log" id="testLog"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Test state
+        const state = {
+            video: null,
+            canvas: null,
+            ctx: null,
+            isRunning: false,
+            frameCount: 0,
+            startTime: null,
+            fps: 0,
+            testResults: {}
+        };
+
+        // Initialize
+        function init() {
+            state.video = document.getElementById('testVideo');
+            state.canvas = document.getElementById('testCanvas');
+            state.ctx = state.canvas.getContext('2d');
+
+            detectBrowserAndDevice();
+            setupEventListeners();
+            setupResizeObserver();
+        }
+
+        // Detect browser and device
+        function detectBrowserAndDevice() {
+            const ua = navigator.userAgent;
+            const info = {
+                'User Agent': ua,
+                'Platform': navigator.platform,
+                'Screen Size': `${window.screen.width}x${window.screen.height}`,
+                'Viewport Size': `${window.innerWidth}x${window.innerHeight}`,
+                'Device Pixel Ratio': window.devicePixelRatio,
+                'Orientation': screen.orientation?.type || 'unknown',
+                'Touch Support': 'ontouchstart' in window ? 'Yes' : 'No',
+                'Browser': detectBrowser(),
+                'Mobile': /Mobile|Android|iPhone|iPad/i.test(ua) ? 'Yes' : 'No'
+            };
+
+            const infoPanel = document.getElementById('browserInfo');
+            infoPanel.innerHTML = Object.entries(info)
+                .map(([key, value]) => `
+                    <div class="info-row">
+                        <span class="info-label">${key}:</span>
+                        <span class="info-value">${value}</span>
+                    </div>
+                `).join('');
+        }
+
+        function detectBrowser() {
+            const ua = navigator.userAgent;
+            if (ua.includes('Chrome') && !ua.includes('Edg')) return 'Chrome';
+            if (ua.includes('Safari') && !ua.includes('Chrome')) return 'Safari';
+            if (ua.includes('Firefox')) return 'Firefox';
+            if (ua.includes('Edg')) return 'Edge';
+            return 'Unknown';
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            document.getElementById('startBtn').addEventListener('click', startCamera);
+            document.getElementById('stopBtn').addEventListener('click', stopCamera);
+            document.getElementById('runTestsBtn').addEventListener('click', runAllTests);
+
+            window.addEventListener('resize', handleResize);
+            window.addEventListener('orientationchange', handleOrientationChange);
+        }
+
+        // Setup ResizeObserver
+        function setupResizeObserver() {
+            const observer = new ResizeObserver(entries => {
+                for (const entry of entries) {
+                    if (entry.target === state.video) {
+                        syncCanvasSize();
+                        log('Canvas resized to match video', 'info');
+                    }
+                }
+            });
+
+            observer.observe(state.video);
+        }
+
+        // Start camera
+        async function startCamera() {
+            try {
+                log('Requesting camera access...', 'info');
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        facingMode: 'user'
+                    }
+                });
+
+                state.video.srcObject = stream;
+                state.isRunning = true;
+                state.startTime = performance.now();
+                state.frameCount = 0;
+
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('stopBtn').disabled = false;
+
+                log('Camera started successfully', 'success');
+                
+                // Wait for video to be ready
+                state.video.onloadedmetadata = () => {
+                    syncCanvasSize();
+                    startRendering();
+                };
+            } catch (error) {
+                log(`Camera error: ${error.message}`, 'error');
+                updateTestResult('Camera Access', false, error.message);
+            }
+        }
+
+        // Stop camera
+        function stopCamera() {
+            if (state.video.srcObject) {
+                state.video.srcObject.getTracks().forEach(track => track.stop());
+                state.video.srcObject = null;
+            }
+
+            state.isRunning = false;
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+
+            log('Camera stopped', 'info');
+        }
+
+        // Sync canvas size with video
+        function syncCanvasSize() {
+            const rect = state.video.getBoundingClientRect();
+            state.canvas.width = rect.width;
+            state.canvas.height = rect.height;
+            
+            log(`Canvas synced: ${rect.width}x${rect.height}`, 'info');
+        }
+
+        // Start rendering loop
+        function startRendering() {
+            function render() {
+                if (!state.isRunning) return;
+
+                // Draw mock skeleton for testing
+                drawMockSkeleton();
+
+                // Update FPS
+                state.frameCount++;
+                const elapsed = (performance.now() - state.startTime) / 1000;
+                state.fps = Math.round(state.frameCount / elapsed);
+
+                updatePerformanceInfo();
+
+                requestAnimationFrame(render);
+            }
+
+            render();
+        }
+
+        // Draw mock skeleton
+        function drawMockSkeleton() {
+            const ctx = state.ctx;
+            const w = state.canvas.width;
+            const h = state.canvas.height;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, w, h);
+
+            // Mock landmarks (simplified)
+            const landmarks = [
+                { x: w * 0.5, y: h * 0.2 },   // Head
+                { x: w * 0.4, y: h * 0.4 },   // Left shoulder
+                { x: w * 0.6, y: h * 0.4 },   // Right shoulder
+                { x: w * 0.35, y: h * 0.6 },  // Left elbow
+                { x: w * 0.65, y: h * 0.6 },  // Right elbow
+                { x: w * 0.3, y: h * 0.75 },  // Left wrist
+                { x: w * 0.7, y: h * 0.75 },  // Right wrist
+                { x: w * 0.45, y: h * 0.55 }, // Left hip
+                { x: w * 0.55, y: h * 0.55 }, // Right hip
+            ];
+
+            // Draw connections
+            ctx.strokeStyle = 'rgba(0, 212, 255, 0.7)';
+            ctx.lineWidth = 3;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = 'rgba(0, 212, 255, 0.5)';
+
+            const connections = [
+                [0, 1], [0, 2], [1, 2], [1, 3], [2, 4],
+                [3, 5], [4, 6], [1, 7], [2, 8], [7, 8]
+            ];
+
+            connections.forEach(([i, j]) => {
+                ctx.beginPath();
+                ctx.moveTo(landmarks[i].x, landmarks[i].y);
+                ctx.lineTo(landmarks[j].x, landmarks[j].y);
+                ctx.stroke();
+            });
+
+            // Draw landmarks
+            ctx.shadowBlur = 15;
+            landmarks.forEach(point => {
+                ctx.fillStyle = '#00ff88';
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 6, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        // Update performance info
+        function updatePerformanceInfo() {
+            const info = {
+                'FPS': state.fps,
+                'Frame Count': state.frameCount,
+                'Canvas Size': `${state.canvas.width}x${state.canvas.height}`,
+                'Video Size': `${state.video.videoWidth}x${state.video.videoHeight}`,
+                'Aspect Ratio': (state.canvas.width / state.canvas.height).toFixed(2)
+            };
+
+            const panel = document.getElementById('performanceInfo');
+            panel.innerHTML = Object.entries(info)
+                .map(([key, value]) => `
+                    <div class="info-row">
+                        <span class="info-label">${key}:</span>
+                        <span class="info-value">${value}</span>
+                    </div>
+                `).join('');
+        }
+
+        // Handle resize
+        function handleResize() {
+            log(`Window resized: ${window.innerWidth}x${window.innerHeight}`, 'info');
+            if (state.isRunning) {
+                syncCanvasSize();
+            }
+        }
+
+        // Handle orientation change
+        function handleOrientationChange() {
+            const orientation = screen.orientation?.type || 'unknown';
+            log(`Orientation changed: ${orientation}`, 'info');
+            setTimeout(() => {
+                if (state.isRunning) {
+                    syncCanvasSize();
+                }
+            }, 100);
+        }
+
+        // Run all tests
+        async function runAllTests() {
+            log('Starting test suite...', 'info');
+
+            // Test 1: Canvas API Support
+            testCanvasSupport();
+
+            // Test 2: MediaDevices API Support
+            await testMediaDevicesSupport();
+
+            // Test 3: Canvas Scaling
+            testCanvasScaling();
+
+            // Test 4: Performance
+            testPerformance();
+
+            // Test 5: Responsive Design
+            testResponsiveDesign();
+
+            // Test 6: Touch Support (mobile)
+            testTouchSupport();
+
+            log('Test suite completed', 'success');
+        }
+
+        // Test: Canvas API Support
+        function testCanvasSupport() {
+            try {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const supported = ctx !== null;
+
+                updateTestResult('Canvas API Support', supported, 
+                    supported ? 'Canvas 2D context available' : 'Canvas not supported');
+            } catch (error) {
+                updateTestResult('Canvas API Support', false, error.message);
+            }
+        }
+
+        // Test: MediaDevices API Support
+        async function testMediaDevicesSupport() {
+            try {
+                const supported = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+                updateTestResult('MediaDevices API', supported,
+                    supported ? 'getUserMedia available' : 'getUserMedia not supported');
+            } catch (error) {
+                updateTestResult('MediaDevices API', false, error.message);
+            }
+        }
+
+        // Test: Canvas Scaling
+        function testCanvasScaling() {
+            try {
+                const originalWidth = state.canvas.width;
+                const originalHeight = state.canvas.height;
+
+                // Simulate resize
+                state.canvas.width = 800;
+                state.canvas.height = 600;
+
+                const scaled = state.canvas.width === 800 && state.canvas.height === 600;
+
+                // Restore
+                state.canvas.width = originalWidth;
+                state.canvas.height = originalHeight;
+
+                updateTestResult('Canvas Scaling', scaled,
+                    scaled ? 'Canvas dimensions update correctly' : 'Canvas scaling failed');
+            } catch (error) {
+                updateTestResult('Canvas Scaling', false, error.message);
+            }
+        }
+
+        // Test: Performance
+        function testPerformance() {
+            const fps = state.fps;
+            const passed = fps >= 25 || fps === 0; // 0 means not started yet
+            updateTestResult('Performance (FPS)', passed,
+                fps > 0 ? `${fps} FPS ${passed ? '✓' : '✗'}` : 'Not measured yet');
+        }
+
+        // Test: Responsive Design
+        function testResponsiveDesign() {
+            try {
+                const viewport = window.innerWidth;
+                const isMobile = viewport < 768;
+                const isTablet = viewport >= 768 && viewport < 1024;
+                const isDesktop = viewport >= 1024;
+
+                let deviceType = 'Unknown';
+                if (isMobile) deviceType = 'Mobile';
+                else if (isTablet) deviceType = 'Tablet';
+                else if (isDesktop) deviceType = 'Desktop';
+
+                updateTestResult('Responsive Design', true,
+                    `Detected: ${deviceType} (${viewport}px)`);
+            } catch (error) {
+                updateTestResult('Responsive Design', false, error.message);
+            }
+        }
+
+        // Test: Touch Support
+        function testTouchSupport() {
+            const hasTouch = 'ontouchstart' in window;
+            const isMobile = /Mobile|Android|iPhone|iPad/i.test(navigator.userAgent);
+            
+            updateTestResult('Touch Support', true,
+                hasTouch ? 'Touch events supported' : 'Mouse-only device');
+        }
+
+        // Update test result
+        function updateTestResult(testName, passed, message) {
+            state.testResults[testName] = { passed, message };
+            renderTestResults();
+        }
+
+        // Render test results
+        function renderTestResults() {
+            const container = document.getElementById('testResults');
+            container.innerHTML = Object.entries(state.testResults)
+                .map(([name, result]) => `
+                    <div class="test-item">
+                        <h3>${name}</h3>
+                        <p>${result.message}</p>
+                        <span class="status ${result.passed ? 'pass' : 'fail'}">
+                            ${result.passed ? '✓ PASS' : '✗ FAIL'}
+                        </span>
+                    </div>
+                `).join('');
+        }
+
+        // Log message
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('testLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

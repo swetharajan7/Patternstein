@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vitals Agent - AI Heart Rhythm Analysis | Patternstein</title>
+    <link rel="icon" type="image/svg+xml" href="kolam-favicon.svg?v=2">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a1628 0%, #1a2f4a 50%, #0f1f35 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            flex: 1;
+        }
+
+        .header {
+            padding: 30px;
+            text-align: center;
+            border-bottom: 2px solid #2196F3;
+            position: relative;
+        }
+
+        /* Logo */
+        .logo {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.8));
+        }
+
+        .logo:hover {
+            transform: scale(1.1) rotate(5deg);
+            filter: drop-shadow(0 0 15px rgba(33, 150, 243, 0.6));
+        }
+
+        .logo svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .toggle-label {
+            font-size: 0.9rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 80px;
+            height: 40px;
+            background: #4a5568;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid #2d3748;
+        }
+
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 28px;
+            height: 28px;
+            background: #e2e8f0;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch.active {
+            background: #2d3748;
+        }
+
+        .toggle-switch.active::before {
+            transform: translateX(40px);
+            background: #718096;
+        }
+
+        /* Navigation Menu */
+        .nav-menu {
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            z-index: 1000;
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-link:hover {
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+            transform: translateY(-2px);
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-content {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            min-width: 250px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .dropdown:hover .dropdown-content {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: block;
+            color: #ccc;
+            text-decoration: none;
+            padding: 12px 20px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+            padding-left: 25px;
+        }
+
+        .dropdown-arrow {
+            margin-left: 5px;
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+        }
+
+        .dropdown:hover .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            color: #2196F3;
+            text-shadow: 0 0 20px rgba(33, 150, 243, 0.8);
+            margin-bottom: 20px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #ccc;
+            font-style: italic;
+        }
+
+        .input-section {
+            background: rgba(33, 150, 243, 0.05);
+            border: 2px solid rgba(33, 150, 243, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #2196F3;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .input-description {
+            color: #999;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(33, 150, 243, 0.3);
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #2196F3;
+            box-shadow: 0 0 15px rgba(33, 150, 243, 0.5);
+        }
+
+        .analyze-btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(33, 150, 243, 0.5);
+        }
+
+        .analyze-btn:active {
+            transform: translateY(0);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(33, 150, 243, 0.3);
+            border-top: 4px solid #2196F3;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            display: none;
+            background: rgba(33, 150, 243, 0.05);
+            border: 2px solid rgba(33, 150, 243, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .result-label {
+            display: inline-block;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .confidence-bar {
+            width: 100%;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2196F3 0%, #00ff88 100%);
+            transition: width 1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .interpretation {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #2196F3;
+            margin-top: 20px;
+            line-height: 1.8;
+        }
+
+        .vital-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .vital-card {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid rgba(33, 150, 243, 0.3);
+            text-align: center;
+        }
+
+        .vital-value {
+            font-size: 2rem;
+            color: #2196F3;
+            font-weight: bold;
+        }
+
+        .vital-label {
+            color: #999;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 10px 20px;
+            background: rgba(33, 150, 243, 0.2);
+            border: 2px solid rgba(33, 150, 243, 0.3);
+            border-radius: 10px;
+            color: #2196F3;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: rgba(33, 150, 243, 0.3);
+            transform: translateX(-5px);
+        }
+
+        .error-message {
+            display: none;
+            background: rgba(255, 107, 107, 0.1);
+            border: 2px solid rgba(255, 107, 107, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            color: #ff6b6b;
+            margin-top: 20px;
+        }
+
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            border-top: 2px solid #2196F3;
+            padding: 20px 0;
+            position: relative;
+            z-index: 5;
+            margin-top: auto;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, #2196F3 50%, transparent 100%);
+        }
+
+        .footer-content {
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-content p {
+            margin: 0;
+        }
+
+        .patternstein-link {
+            color: #2196F3;
+            font-size: 1.2rem;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(33, 150, 243, 0.3);
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .patternstein-link:hover {
+            color: #42a5f5;
+            text-shadow: 0 0 15px rgba(33, 150, 243, 0.6);
+            transform: translateY(-1px);
+        }
+
+        .discord-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(33, 150, 243, 0.1);
+            border: 1px solid rgba(33, 150, 243, 0.3);
+            border-radius: 25px;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #2196F3;
+        }
+
+        .discord-toggle:hover {
+            background: rgba(33, 150, 243, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
+        }
+
+        .discord-icon {
+            width: 20px;
+            height: 20px;
+            fill: #2196F3;
+        }
+
+        .discord-text {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Light Mode Styles */
+        body.light-mode {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #e3f2fd 100%);
+            color: #1a202c;
+        }
+
+        body.light-mode .header {
+            border-bottom: 2px solid #2196F3;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        body.light-mode h1 {
+            color: #1976D2;
+            text-shadow: 0 0 20px rgba(25, 118, 210, 0.3);
+        }
+
+        body.light-mode .subtitle {
+            color: #4a5568;
+        }
+
+        body.light-mode .input-section {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(33, 150, 243, 0.3);
+        }
+
+        body.light-mode label {
+            color: #1976D2;
+        }
+
+        body.light-mode .input-description {
+            color: #718096;
+        }
+
+        body.light-mode input[type="number"], 
+        body.light-mode input[type="text"] {
+            background: rgba(227, 242, 253, 0.8);
+            border: 2px solid rgba(33, 150, 243, 0.3);
+            color: #1a202c;
+        }
+
+        body.light-mode .analyze-btn {
+            background: linear-gradient(135deg, #1976D2 0%, #42a5f5 100%);
+        }
+
+        body.light-mode .results {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(33, 150, 243, 0.3);
+        }
+
+        body.light-mode .vital-card {
+            background: rgba(227, 242, 253, 0.8);
+            border: 2px solid rgba(33, 150, 243, 0.3);
+        }
+
+        body.light-mode .vital-value {
+            color: #1976D2;
+        }
+
+        body.light-mode .vital-label {
+            color: #4a5568;
+        }
+
+        body.light-mode .interpretation {
+            background: rgba(227, 242, 253, 0.8);
+            border-left: 4px solid #2196F3;
+            color: #1a202c;
+        }
+
+        body.light-mode .back-link {
+            background: rgba(33, 150, 243, 0.2);
+            border: 2px solid rgba(33, 150, 243, 0.3);
+            color: #1976D2;
+        }
+
+        body.light-mode .footer {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #e3f2fd 100%);
+            border-top: 2px solid #2196F3;
+        }
+
+        body.light-mode .patternstein-link {
+            color: #1976D2;
+        }
+
+        body.light-mode .discord-toggle {
+            background: rgba(33, 150, 243, 0.1);
+            border: 1px solid rgba(33, 150, 243, 0.3);
+            color: #1976D2;
+        }
+
+        body.light-mode .discord-icon {
+            fill: #1976D2;
+        }
+
+        /* Mobile responsiveness for footer */
+        @media (max-width: 768px) {
+            .footer-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .footer-content p {
+                font-size: 1rem;
+            }
+
+            .discord-toggle {
+                padding: 6px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
+        <span class="toggle-label">Light</span>
+        <div class="toggle-switch" id="themeToggle"></div>
+        <span class="toggle-label">Dark</span>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="nav-menu">
+        <div class="nav-item dropdown">
+            <a href="#" class="nav-link">
+                Agents
+                <span class="dropdown-arrow">▼</span>
+            </a>
+            <div class="dropdown-content">
+                <a href="pathology-agent.html" class="dropdown-item">Pathology Agent</a>
+                <a href="vitals-agent.html" class="dropdown-item">Vitals Agent</a>
+                <a href="language-agent.html" class="dropdown-item">Language Agent</a>
+                <a href="genomic-agent.html" class="dropdown-item">Genomic Agent</a>
+                <a href="movement-agent.html" class="dropdown-item">Movement Agent</a>
+                <a href="radiology-agent.html" class="dropdown-item">Radiology Agent</a>
+                <a href="lab-results-agent.html" class="dropdown-item">Lab Results Agent</a>
+                <a href="patternstein.html" class="dropdown-item" style="background: linear-gradient(90deg, #ff0080, #ff8c00, #ffd700, #00ff00, #00d4ff, #8a2be2, #ff1493); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: bold;">Patternstein</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="header">
+        <a href="index.html" class="logo">
+            <img src="kolam-blue-favicon.svg" alt="Patternstein Logo">
+        </a>
+        <h1>AI VITALS MONITOR ❤️</h1>
+        <p class="subtitle">Cardiac Intelligence</p>
+    </header>
+
+    <div class="container">
+
+        <div class="input-section">
+            <h2 style="color: #2196F3; margin-bottom: 20px;">Enter Vital Signs</h2>
+            
+            <div class="input-group">
+                <label for="heartRate">Heart Rate (BPM)</label>
+                <p class="input-description">Normal range: 60-100 beats per minute</p>
+                <input type="number" id="heartRate" placeholder="e.g., 75" min="30" max="220">
+            </div>
+
+            <div class="input-group">
+                <label for="bloodPressureSystolic">Blood Pressure - Systolic</label>
+                <p class="input-description">Top number (normal: 90-120 mmHg)</p>
+                <input type="number" id="bloodPressureSystolic" placeholder="e.g., 120" min="60" max="200">
+            </div>
+
+            <div class="input-group">
+                <label for="bloodPressureDiastolic">Blood Pressure - Diastolic</label>
+                <p class="input-description">Bottom number (normal: 60-80 mmHg)</p>
+                <input type="number" id="bloodPressureDiastolic" placeholder="e.g., 80" min="40" max="130">
+            </div>
+
+            <div class="input-group">
+                <label for="oxygenSaturation">Oxygen Saturation (%)</label>
+                <p class="input-description">Normal range: 95-100%</p>
+                <input type="number" id="oxygenSaturation" placeholder="e.g., 98" min="70" max="100">
+            </div>
+
+            <div class="input-group">
+                <label for="respiratoryRate">Respiratory Rate (breaths/min)</label>
+                <p class="input-description">Normal range: 12-20 breaths per minute</p>
+                <input type="number" id="respiratoryRate" placeholder="e.g., 16" min="8" max="40">
+            </div>
+
+            <button class="analyze-btn" onclick="analyzeVitals()">🔬 Analyze Vitals</button>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analyzing vital signs with AI...</p>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="results" id="results">
+            <div class="result-header">
+                <div class="result-label" id="resultLabel">Normal Rhythm</div>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" id="confidenceFill">95% Confidence</div>
+                </div>
+            </div>
+
+            <div class="vital-display" id="vitalDisplay"></div>
+
+            <div class="interpretation" id="interpretation">
+                AI analysis will appear here...
+            </div>
+
+            <button class="analyze-btn" onclick="resetForm()" style="margin-top: 30px; background: rgba(33, 150, 243, 0.3);">
+                Analyze Another Patient
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function analyzeVitals() {
+            // Get input values
+            const heartRate = parseFloat(document.getElementById('heartRate').value);
+            const systolic = parseFloat(document.getElementById('bloodPressureSystolic').value);
+            const diastolic = parseFloat(document.getElementById('bloodPressureDiastolic').value);
+            const oxygen = parseFloat(document.getElementById('oxygenSaturation').value);
+            const respiratory = parseFloat(document.getElementById('respiratoryRate').value);
+
+            // Validate inputs
+            if (!heartRate || !systolic || !diastolic || !oxygen || !respiratory) {
+                showError('Please fill in all vital sign fields');
+                return;
+            }
+
+            // Hide error, show loading
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+
+            // Simulate AI analysis (replace with actual API call)
+            setTimeout(() => {
+                const analysis = performAnalysis(heartRate, systolic, diastolic, oxygen, respiratory);
+                displayResults(analysis);
+            }, 2000);
+        }
+
+        function performAnalysis(hr, sys, dia, o2, rr) {
+            // Simple rule-based analysis (replace with actual AI model)
+            let issues = [];
+            let severity = 'normal';
+            
+            if (hr < 60) issues.push('bradycardia (slow heart rate)');
+            if (hr > 100) issues.push('tachycardia (fast heart rate)');
+            if (sys > 140 || dia > 90) issues.push('hypertension (high blood pressure)');
+            if (sys < 90) issues.push('hypotension (low blood pressure)');
+            if (o2 < 95) issues.push('hypoxemia (low oxygen)');
+            if (rr < 12 || rr > 20) issues.push('abnormal respiratory rate');
+
+            if (issues.length === 0) {
+                return {
+                    status: 'Normal',
+                    confidence: 0.95,
+                    color: '#00ff88',
+                    interpretation: `All vital signs are within normal ranges. Heart rate: ${hr} BPM, Blood pressure: ${sys}/${dia} mmHg, Oxygen saturation: ${o2}%, Respiratory rate: ${rr} breaths/min. Continue regular monitoring.`,
+                    vitals: { hr, sys, dia, o2, rr }
+                };
+            } else if (issues.length <= 2) {
+                severity = 'warning';
+                return {
+                    status: 'Abnormal - Monitor',
+                    confidence: 0.88,
+                    color: '#ffc107',
+                    interpretation: `Detected ${issues.join(', ')}. Recommend continued monitoring and consultation with healthcare provider. Vital signs: HR ${hr}, BP ${sys}/${dia}, O2 ${o2}%, RR ${rr}.`,
+                    vitals: { hr, sys, dia, o2, rr }
+                };
+            } else {
+                return {
+                    status: 'Critical - Immediate Attention',
+                    confidence: 0.92,
+                    color: '#ff6b6b',
+                    interpretation: `Multiple abnormalities detected: ${issues.join(', ')}. IMMEDIATE medical attention recommended. Vital signs: HR ${hr}, BP ${sys}/${dia}, O2 ${o2}%, RR ${rr}.`,
+                    vitals: { hr, sys, dia, o2, rr }
+                };
+            }
+        }
+
+        function displayResults(analysis) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('results').style.display = 'block';
+
+            // Set result label
+            const resultLabel = document.getElementById('resultLabel');
+            resultLabel.textContent = analysis.status;
+            resultLabel.style.background = analysis.color + '33';
+            resultLabel.style.color = analysis.color;
+            resultLabel.style.border = `2px solid ${analysis.color}`;
+
+            // Set confidence bar
+            const confidenceFill = document.getElementById('confidenceFill');
+            const confidencePercent = (analysis.confidence * 100).toFixed(0);
+            confidenceFill.style.width = confidencePercent + '%';
+            confidenceFill.style.background = `linear-gradient(90deg, ${analysis.color} 0%, ${analysis.color}aa 100%)`;
+            confidenceFill.textContent = `${confidencePercent}% Confidence`;
+
+            // Display vitals
+            const vitalDisplay = document.getElementById('vitalDisplay');
+            vitalDisplay.innerHTML = `
+                <div class="vital-card">
+                    <div class="vital-value">${analysis.vitals.hr}</div>
+                    <div class="vital-label">Heart Rate (BPM)</div>
+                </div>
+                <div class="vital-card">
+                    <div class="vital-value">${analysis.vitals.sys}/${analysis.vitals.dia}</div>
+                    <div class="vital-label">Blood Pressure</div>
+                </div>
+                <div class="vital-card">
+                    <div class="vital-value">${analysis.vitals.o2}%</div>
+                    <div class="vital-label">Oxygen Saturation</div>
+                </div>
+                <div class="vital-card">
+                    <div class="vital-value">${analysis.vitals.rr}</div>
+                    <div class="vital-label">Respiratory Rate</div>
+                </div>
+            `;
+
+            // Set interpretation
+            document.getElementById('interpretation').textContent = analysis.interpretation;
+
+            // Scroll to results
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function resetForm() {
+            document.getElementById('heartRate').value = '';
+            document.getElementById('bloodPressureSystolic').value = '';
+            document.getElementById('bloodPressureDiastolic').value = '';
+            document.getElementById('oxygenSaturation').value = '';
+            document.getElementById('respiratoryRate').value = '';
+            document.getElementById('results').style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Theme Toggle Functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            body.classList.add('light-mode');
+            themeToggle.classList.add('active');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('light-mode');
+            themeToggle.classList.toggle('active');
+            
+            // Save preference
+            if (body.classList.contains('light-mode')) {
+                localStorage.setItem('theme', 'light');
+            } else {
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+    </script>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p><a href="index.html" class="patternstein-link">Patternstein 2026</a></p>
+            <a href="https://discord.com/channels/1374034175430230016/1422981799713308783" target="_blank" class="discord-toggle">
+                <svg class="discord-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
+                </svg>
+                <span class="discord-text">Discord</span>
+            </a>
+        </div>
+    </footer>
+</body>
+</html>

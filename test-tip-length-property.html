@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Test: Tip Length Constraint</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a2e;
+            color: #fff;
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #00d4ff;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .test-section {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .test-title {
+            color: #00ff88;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+        
+        .test-result {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .test-pass {
+            background: rgba(0, 255, 136, 0.2);
+            border-left: 4px solid #00ff88;
+        }
+        
+        .test-fail {
+            background: rgba(255, 0, 0, 0.2);
+            border-left: 4px solid #ff0000;
+        }
+        
+        .test-info {
+            background: rgba(0, 212, 255, 0.1);
+            border-left: 4px solid #00d4ff;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+        
+        .summary {
+            background: rgba(0, 212, 255, 0.2);
+            border: 2px solid #00d4ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .summary h2 {
+            color: #00ff88;
+            margin-bottom: 15px;
+        }
+        
+        .tip-details {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .tip-item {
+            padding: 5px;
+            margin: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .tip-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Property Test: Tip Length Constraint</h1>
+    
+    <div class="test-section">
+        <div class="test-title">Property 3: Tip Length Constraint</div>
+        <div class="test-info">
+            <strong>Feature:</strong> health-tips-footer, Property 3: Tip length constraint<br>
+            <strong>Validates:</strong> Requirements 2.4<br>
+            <strong>Property:</strong> <em>For any</em> tip in the health tips array, the character length should be less than 100 characters<br>
+            <strong>Requirement 2.4:</strong> WHEN tips are created THEN the system SHALL ensure each tip is concise (under 100 characters)
+        </div>
+        <div id="test-results"></div>
+    </div>
+    
+    <div class="summary" id="summary"></div>
+    
+    <script>
+        // Health tips array (same as in index.html)
+        const healthTips = [
+            "Stay hydrated: Drink 8 glasses of water daily 💧",
+            "Get 7-9 hours of sleep for optimal health 😴",
+            "Exercise 30 minutes daily to boost immunity 🏃",
+            "Eat colorful fruits & vegetables every day 🥗",
+            "Wash hands frequently to prevent illness 🧼",
+            "Take breaks from screens every 20 minutes 👀",
+            "Practice deep breathing to reduce stress 🧘",
+            "Schedule regular health check-ups 🩺",
+            "Limit processed foods and added sugars 🍎",
+            "Stay socially connected for mental health 💬",
+            "Protect your skin with daily sunscreen ☀️",
+            "Maintain good posture to prevent back pain 🪑"
+        ];
+        
+        const MAX_TIP_LENGTH = 100;
+        
+        let testResults = {
+            passed: 0,
+            failed: 0,
+            total: 0,
+            violations: []
+        };
+        
+        function logTest(testName, passed, message, details = null) {
+            testResults.total++;
+            if (passed) {
+                testResults.passed++;
+            } else {
+                testResults.failed++;
+                if (details) {
+                    testResults.violations.push(details);
+                }
+            }
+            
+            const resultDiv = document.createElement('div');
+            resultDiv.className = passed ? 'test-result test-pass' : 'test-result test-fail';
+            resultDiv.innerHTML = `
+                <strong>${passed ? '✓ PASS' : '✗ FAIL'}:</strong> ${testName}<br>
+                <span style="font-size: 0.9rem; opacity: 0.8;">${message}</span>
+            `;
+            return resultDiv;
+        }
+        
+        // Property Test: Tip Length Constraint
+        function testTipLengthProperty() {
+            const resultsContainer = document.getElementById('test-results');
+            
+            // Property: For any tip in the array, length < 100 characters
+            let allTipsValid = true;
+            const tipDetails = [];
+            
+            healthTips.forEach((tip, index) => {
+                const tipLength = tip.length;
+                const isValid = tipLength < MAX_TIP_LENGTH;
+                
+                tipDetails.push({
+                    index: index,
+                    tip: tip,
+                    length: tipLength,
+                    valid: isValid
+                });
+                
+                if (!isValid) {
+                    allTipsValid = false;
+                    resultsContainer.appendChild(
+                        logTest(
+                            `Tip ${index + 1} length validation`,
+                            false,
+                            `Tip exceeds ${MAX_TIP_LENGTH} characters: ${tipLength} characters`,
+                            { index, tip, length: tipLength }
+                        )
+                    );
+                }
+            });
+            
+            // Overall property test result
+            resultsContainer.appendChild(
+                logTest(
+                    'Property: All tips are under 100 characters',
+                    allTipsValid,
+                    allTipsValid 
+                        ? `All ${healthTips.length} tips satisfy the length constraint` 
+                        : `${testResults.violations.length} tip(s) violate the length constraint`
+                )
+            );
+            
+            // Display detailed breakdown
+            const detailsDiv = document.createElement('div');
+            detailsDiv.className = 'tip-details';
+            detailsDiv.innerHTML = '<strong>Detailed Breakdown:</strong><br><br>';
+            
+            tipDetails.forEach(detail => {
+                const statusIcon = detail.valid ? '✓' : '✗';
+                const statusColor = detail.valid ? '#00ff88' : '#ff6b6b';
+                detailsDiv.innerHTML += `
+                    <div class="tip-item">
+                        <span style="color: ${statusColor};">${statusIcon}</span>
+                        <strong>Tip ${detail.index + 1}:</strong> ${detail.length} characters<br>
+                        <span style="opacity: 0.7;">"${detail.tip}"</span>
+                    </div>
+                `;
+            });
+            
+            resultsContainer.appendChild(detailsDiv);
+            
+            // Statistical summary
+            const stats = {
+                minLength: Math.min(...tipDetails.map(t => t.length)),
+                maxLength: Math.max(...tipDetails.map(t => t.length)),
+                avgLength: Math.round(tipDetails.reduce((sum, t) => sum + t.length, 0) / tipDetails.length)
+            };
+            
+            resultsContainer.appendChild(
+                logTest(
+                    'Statistical Analysis',
+                    true,
+                    `Min: ${stats.minLength} chars, Max: ${stats.maxLength} chars, Avg: ${stats.avgLength} chars`
+                )
+            );
+        }
+        
+        // Run tests on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            testTipLengthProperty();
+            
+            // Display summary
+            const summaryDiv = document.getElementById('summary');
+            const allPassed = testResults.failed === 0;
+            
+            let violationDetails = '';
+            if (testResults.violations.length > 0) {
+                violationDetails = '<div style="margin-top: 15px; text-align: left;"><strong>Violations:</strong><br>';
+                testResults.violations.forEach(v => {
+                    violationDetails += `<div style="margin: 10px 0; padding: 10px; background: rgba(255, 0, 0, 0.1); border-radius: 5px;">
+                        <strong>Tip ${v.index + 1}:</strong> ${v.length} characters<br>
+                        <span style="opacity: 0.8; font-size: 0.9rem;">"${v.tip}"</span>
+                    </div>`;
+                });
+                violationDetails += '</div>';
+            }
+            
+            summaryDiv.innerHTML = `
+                <h2>${allPassed ? '✓ Property Test Passed!' : '✗ Property Test Failed'}</h2>
+                <p style="font-size: 1.2rem;">
+                    <strong>${testResults.passed}</strong> passed, 
+                    <strong>${testResults.failed}</strong> failed, 
+                    <strong>${testResults.total}</strong> total
+                </p>
+                ${allPassed 
+                    ? '<p style="color: #00ff88;">All tips satisfy the length constraint property!</p>' 
+                    : '<p style="color: #ff6b6b;">Some tips violate the length constraint property.</p>'}
+                ${violationDetails}
+            `;
+        });
+    </script>
+</body>
+</html>

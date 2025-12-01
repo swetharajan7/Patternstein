@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Test: Animation Timing</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a2e;
+            color: #fff;
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #00d4ff;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .test-section {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .test-title {
+            color: #00ff88;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+        
+        .test-result {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .test-pass {
+            background: rgba(0, 255, 136, 0.2);
+            border-left: 4px solid #00ff88;
+        }
+        
+        .test-fail {
+            background: rgba(255, 0, 0, 0.2);
+            border-left: 4px solid #ff0000;
+        }
+        
+        .test-info {
+            background: rgba(0, 212, 255, 0.1);
+            border-left: 4px solid #00d4ff;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+        
+        .test-progress {
+            background: rgba(255, 165, 0, 0.2);
+            border-left: 4px solid #ffa500;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        #healthTipText {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #ccc;
+            text-align: center;
+            min-height: 1.5em;
+        }
+        
+        .fade-in {
+            animation: fade-in 0.8s ease-in-out forwards;
+        }
+        
+        .fade-out {
+            animation: fade-out 0.8s ease-in-out forwards;
+        }
+        
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fade-out {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+        
+        .summary {
+            background: rgba(0, 212, 255, 0.2);
+            border: 2px solid #00d4ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .summary h2 {
+            color: #00ff88;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Property Test: Tip Rotation Interval Consistency</h1>
+    
+    <div class="test-section">
+        <div class="test-title">Property 1: Tip rotation interval consistency</div>
+        <div class="test-info">
+            <strong>Property:</strong> For any tip in the collection, when displayed, the next tip should appear after exactly 5 seconds (±100ms tolerance for timing precision)<br>
+            <strong>Validates:</strong> Requirements 1.2 - WHEN 5 seconds elapse THEN the system SHALL fade out the current tip and fade in a new tip<br>
+            <strong>Test Strategy:</strong> Measure the actual time between multiple tip rotations and verify they all fall within the acceptable range
+        </div>
+        <div id="test-results"></div>
+        <div id="test-progress"></div>
+    </div>
+    
+    <div class="summary" id="summary"></div>
+    
+    <!-- Hidden element for testing -->
+    <div id="healthTipText" style="display: none;"></div>
+    
+    <script>
+        /**
+         * Feature: health-tips-footer, Property 1: Tip rotation interval consistency
+         * 
+         * This property-based test validates that the health tips rotation
+         * occurs at consistent 5-second intervals across multiple rotations.
+         */
+        
+        // Health tips array (same as in index.html)
+        const healthTips = [
+            "Stay hydrated: Drink 8 glasses of water daily 💧",
+            "Get 7-9 hours of sleep for optimal health 😴",
+            "Exercise 30 minutes daily to boost immunity 🏃",
+            "Eat colorful fruits & vegetables every day 🥗",
+            "Wash hands frequently to prevent illness 🧼",
+            "Take breaks from screens every 20 minutes 👀",
+            "Practice deep breathing to reduce stress 🧘",
+            "Schedule regular health check-ups 🩺",
+            "Limit processed foods and added sugars 🍎",
+            "Stay socially connected for mental health 💬",
+            "Protect your skin with daily sunscreen ☀️",
+            "Maintain good posture to prevent back pain 🪑"
+        ];
+        
+        let testResults = {
+            passed: 0,
+            failed: 0,
+            total: 0
+        };
+        
+        function logTest(testName, passed, message) {
+            testResults.total++;
+            if (passed) {
+                testResults.passed++;
+            } else {
+                testResults.failed++;
+            }
+            
+            const resultDiv = document.createElement('div');
+            resultDiv.className = passed ? 'test-result test-pass' : 'test-result test-fail';
+            resultDiv.innerHTML = `
+                <strong>${passed ? '✓ PASS' : '✗ FAIL'}:</strong> ${testName}<br>
+                <span style="font-size: 0.9rem; opacity: 0.8;">${message}</span>
+            `;
+            return resultDiv;
+        }
+        
+        function logProgress(message) {
+            const progressDiv = document.getElementById('test-progress');
+            const progressItem = document.createElement('div');
+            progressItem.className = 'test-progress';
+            progressItem.innerHTML = `<strong>⏳ Progress:</strong> ${message}`;
+            progressDiv.appendChild(progressItem);
+        }
+        
+        // Property test for animation timing
+        async function testAnimationTiming() {
+            const resultsContainer = document.getElementById('test-results');
+            const healthTipElement = document.getElementById('healthTipText');
+            
+            // Configuration
+            const EXPECTED_INTERVAL = 5000; // 5 seconds in milliseconds
+            const TOLERANCE = 100; // ±100ms tolerance
+            const MIN_INTERVAL = EXPECTED_INTERVAL - TOLERANCE;
+            const MAX_INTERVAL = EXPECTED_INTERVAL + TOLERANCE;
+            const NUM_ROTATIONS_TO_TEST = 5; // Test 5 rotations
+            
+            logProgress(`Starting property test with ${NUM_ROTATIONS_TO_TEST} rotations...`);
+            
+            // Setup: Initialize the health tips system
+            let currentTipIndex = 0;
+            const rotationTimestamps = [];
+            const measuredIntervals = [];
+            
+            // Function to rotate health tip (same logic as index.html)
+            function rotateHealthTip() {
+                if (!healthTipElement) return;
+                
+                // Record timestamp
+                rotationTimestamps.push(Date.now());
+                
+                // Apply fade-out animation
+                healthTipElement.classList.remove('fade-in');
+                healthTipElement.classList.add('fade-out');
+                
+                // Wait for fade-out to complete, then update text and fade in
+                setTimeout(() => {
+                    // Update to next tip
+                    currentTipIndex = (currentTipIndex + 1) % healthTips.length;
+                    healthTipElement.textContent = healthTips[currentTipIndex];
+                    
+                    // Apply fade-in animation
+                    healthTipElement.classList.remove('fade-out');
+                    healthTipElement.classList.add('fade-in');
+                }, 800); // Match the CSS animation duration
+            }
+            
+            // Initialize first tip
+            healthTipElement.textContent = healthTips[0];
+            healthTipElement.classList.add('fade-in');
+            healthTipElement.style.display = 'block';
+            rotationTimestamps.push(Date.now());
+            
+            logProgress('First tip displayed, starting rotation timer...');
+            
+            // Start rotation and collect timing data
+            return new Promise((resolve) => {
+                let rotationCount = 0;
+                const intervalId = setInterval(() => {
+                    rotateHealthTip();
+                    rotationCount++;
+                    
+                    logProgress(`Rotation ${rotationCount}/${NUM_ROTATIONS_TO_TEST} completed`);
+                    
+                    if (rotationCount >= NUM_ROTATIONS_TO_TEST) {
+                        clearInterval(intervalId);
+                        
+                        // Calculate intervals between rotations
+                        for (let i = 1; i < rotationTimestamps.length; i++) {
+                            const interval = rotationTimestamps[i] - rotationTimestamps[i - 1];
+                            measuredIntervals.push(interval);
+                        }
+                        
+                        logProgress('All rotations completed, analyzing timing data...');
+                        
+                        // Test 1: Verify we collected the expected number of intervals
+                        const test1 = measuredIntervals.length === NUM_ROTATIONS_TO_TEST;
+                        resultsContainer.appendChild(
+                            logTest(
+                                'Correct number of intervals measured',
+                                test1,
+                                test1 
+                                    ? `Measured ${measuredIntervals.length} intervals` 
+                                    : `Expected ${NUM_ROTATIONS_TO_TEST} intervals, got ${measuredIntervals.length}`
+                            )
+                        );
+                        
+                        // Test 2: Property test - ALL intervals should be within tolerance
+                        let allIntervalsValid = true;
+                        let invalidIntervals = [];
+                        
+                        measuredIntervals.forEach((interval, index) => {
+                            const isValid = interval >= MIN_INTERVAL && interval <= MAX_INTERVAL;
+                            if (!isValid) {
+                                allIntervalsValid = false;
+                                invalidIntervals.push({
+                                    index: index + 1,
+                                    measured: interval,
+                                    deviation: interval - EXPECTED_INTERVAL
+                                });
+                            }
+                        });
+                        
+                        resultsContainer.appendChild(
+                            logTest(
+                                'Property: All rotation intervals within tolerance',
+                                allIntervalsValid,
+                                allIntervalsValid 
+                                    ? `All ${measuredIntervals.length} intervals are within ${EXPECTED_INTERVAL}ms ±${TOLERANCE}ms` 
+                                    : `${invalidIntervals.length} interval(s) outside tolerance: ${JSON.stringify(invalidIntervals)}`
+                            )
+                        );
+                        
+                        // Test 3: Calculate and verify average interval
+                        const avgInterval = measuredIntervals.reduce((sum, val) => sum + val, 0) / measuredIntervals.length;
+                        const avgWithinTolerance = avgInterval >= MIN_INTERVAL && avgInterval <= MAX_INTERVAL;
+                        
+                        resultsContainer.appendChild(
+                            logTest(
+                                'Average interval within tolerance',
+                                avgWithinTolerance,
+                                `Average: ${avgInterval.toFixed(2)}ms (Expected: ${EXPECTED_INTERVAL}ms ±${TOLERANCE}ms)`
+                            )
+                        );
+                        
+                        // Test 4: Calculate standard deviation (consistency check)
+                        const variance = measuredIntervals.reduce((sum, val) => {
+                            return sum + Math.pow(val - avgInterval, 2);
+                        }, 0) / measuredIntervals.length;
+                        const stdDev = Math.sqrt(variance);
+                        const consistencyThreshold = 50; // Standard deviation should be < 50ms for consistency
+                        const isConsistent = stdDev < consistencyThreshold;
+                        
+                        resultsContainer.appendChild(
+                            logTest(
+                                'Timing consistency (low variance)',
+                                isConsistent,
+                                `Standard deviation: ${stdDev.toFixed(2)}ms (Threshold: <${consistencyThreshold}ms)`
+                            )
+                        );
+                        
+                        // Test 5: Detailed interval breakdown
+                        const intervalDetails = measuredIntervals.map((interval, index) => {
+                            const deviation = interval - EXPECTED_INTERVAL;
+                            const withinTolerance = Math.abs(deviation) <= TOLERANCE;
+                            return `Interval ${index + 1}: ${interval}ms (${deviation >= 0 ? '+' : ''}${deviation}ms) ${withinTolerance ? '✓' : '✗'}`;
+                        }).join('<br>');
+                        
+                        const detailDiv = document.createElement('div');
+                        detailDiv.className = 'test-info';
+                        detailDiv.innerHTML = `<strong>Detailed Interval Measurements:</strong><br>${intervalDetails}`;
+                        resultsContainer.appendChild(detailDiv);
+                        
+                        resolve();
+                    }
+                }, EXPECTED_INTERVAL);
+            });
+        }
+        
+        // Run tests on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            await testAnimationTiming();
+            
+            // Display summary
+            const summaryDiv = document.getElementById('summary');
+            const allPassed = testResults.failed === 0;
+            summaryDiv.innerHTML = `
+                <h2>${allPassed ? '✓ Property Test Passed!' : '⚠ Property Test Failed'}</h2>
+                <p style="font-size: 1.2rem;">
+                    <strong>${testResults.passed}</strong> passed, 
+                    <strong>${testResults.failed}</strong> failed, 
+                    <strong>${testResults.total}</strong> total
+                </p>
+                ${allPassed 
+                    ? '<p style="color: #00ff88;">The tip rotation timing is consistent and meets the 5-second interval requirement!</p>' 
+                    : '<p style="color: #ff6b6b;">Some timing tests failed. Please review the results above.</p>'}
+            `;
+        });
+    </script>
+</body>
+</html>

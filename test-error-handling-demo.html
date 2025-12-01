@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Tips Error Handling Demo</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #fff;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #00d4ff;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .demo-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #00d4ff;
+            border-radius: 10px;
+            background: rgba(0, 212, 255, 0.05);
+        }
+        .demo-section h2 {
+            color: #00ff88;
+            margin-bottom: 15px;
+        }
+        .demo-section p {
+            color: #ccc;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        .health-tips-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+            padding: 15px 20px;
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 10px;
+        }
+        .health-tip-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        .health-tip-text {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #ccc;
+            text-align: center;
+            flex: 1;
+            min-height: 1.5em;
+        }
+        .console-box {
+            background: #111;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+            border: 1px solid #333;
+        }
+        .console-log { color: #00d4ff; }
+        .console-error { color: #ff6b6b; }
+        .console-warn { color: #ffd700; }
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status-success {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+        .status-error {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+        }
+        .status-warning {
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+        }
+        button {
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid #00d4ff;
+            color: #00d4ff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: rgba(0, 212, 255, 0.3);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Health Tips Error Handling Demo</h1>
+
+    <div class="demo-section">
+        <h2>Scenario 1: Normal Operation <span class="status status-success">✓ WORKING</span></h2>
+        <p>Element exists, tips array is valid with 12 tips. System initializes successfully.</p>
+        <div class="health-tips-container">
+            <div class="health-tip-icon">💚</div>
+            <div class="health-tip-text" id="healthTipText1"></div>
+        </div>
+        <div class="console-box" id="console1"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>Scenario 2: Missing DOM Element <span class="status status-error">⚠ ERROR HANDLED</span></h2>
+        <p>The healthTipText element doesn't exist. System detects this and logs error gracefully.</p>
+        <div class="health-tips-container">
+            <div class="health-tip-icon">💚</div>
+            <div class="health-tip-text">
+                <em style="color: #666;">[Element with id="healthTipText2" not found]</em>
+            </div>
+        </div>
+        <div class="console-box" id="console2"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>Scenario 3: Empty Tips Array <span class="status status-warning">⚠ FALLBACK ACTIVE</span></h2>
+        <p>Tips array is empty. System validates, detects the issue, and displays fallback message.</p>
+        <div class="health-tips-container">
+            <div class="health-tip-icon">💚</div>
+            <div class="health-tip-text" id="healthTipText3"></div>
+        </div>
+        <div class="console-box" id="console3"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>Scenario 4: Runtime Error During Rotation <span class="status status-error">⚠ ERROR CAUGHT</span></h2>
+        <p>Simulates an error during tip rotation. Try-catch blocks prevent page crash.</p>
+        <div class="health-tips-container">
+            <div class="health-tip-icon">💚</div>
+            <div class="health-tip-text" id="healthTipText4"></div>
+        </div>
+        <button onclick="simulateRotationError()">Simulate Rotation Error</button>
+        <div class="console-box" id="console4"></div>
+    </div>
+
+    <script>
+        // Console capture utilities
+        function createConsoleCapture(consoleId) {
+            const consoleBox = document.getElementById(consoleId);
+            return {
+                log: (msg) => {
+                    consoleBox.innerHTML += `<div class="console-log">[LOG] ${msg}</div>`;
+                },
+                error: (msg) => {
+                    consoleBox.innerHTML += `<div class="console-error">[ERROR] ${msg}</div>`;
+                },
+                warn: (msg) => {
+                    consoleBox.innerHTML += `<div class="console-warn">[WARN] ${msg}</div>`;
+                }
+            };
+        }
+
+        // Scenario 1: Normal Operation
+        (function() {
+            const console1 = createConsoleCapture('console1');
+            const healthTips = [
+                "Stay hydrated: Drink 8 glasses of water daily 💧",
+                "Get 7-9 hours of sleep for optimal health 😴",
+                "Exercise 30 minutes daily to boost immunity 🏃",
+                "Eat colorful fruits & vegetables every day 🥗",
+                "Wash hands frequently to prevent illness 🧼",
+                "Take breaks from screens every 20 minutes 👀",
+                "Practice deep breathing to reduce stress 🧘",
+                "Schedule regular health check-ups 🩺",
+                "Limit processed foods and added sugars 🍎",
+                "Stay socially connected for mental health 💬",
+                "Protect your skin with daily sunscreen ☀️",
+                "Maintain good posture to prevent back pain 🪑"
+            ];
+            const element = document.getElementById('healthTipText1');
+
+            function validateHealthTips() {
+                if (!Array.isArray(healthTips)) {
+                    console1.error('healthTips is not an array');
+                    return false;
+                }
+                if (healthTips.length === 0) {
+                    console1.error('healthTips array is empty');
+                    return false;
+                }
+                console1.log(`Health tips validated: ${healthTips.length} tips loaded`);
+                return true;
+            }
+
+            if (element) {
+                if (validateHealthTips()) {
+                    element.textContent = healthTips[0];
+                    console1.log('Health tips initialized successfully');
+                }
+            }
+        })();
+
+        // Scenario 2: Missing DOM Element
+        (function() {
+            const console2 = createConsoleCapture('console2');
+            const element = document.getElementById('healthTipText2'); // Doesn't exist
+
+            if (!element) {
+                console2.error('Health tips initialization failed: healthTipText element not found in DOM');
+                console2.log('Expected element with id="healthTipText" in the footer');
+            }
+        })();
+
+        // Scenario 3: Empty Tips Array
+        (function() {
+            const console3 = createConsoleCapture('console3');
+            const healthTips = []; // Empty array
+            const element = document.getElementById('healthTipText3');
+
+            function validateHealthTips() {
+                if (!Array.isArray(healthTips)) {
+                    console3.error('healthTips is not an array');
+                    return false;
+                }
+                if (healthTips.length === 0) {
+                    console3.error('Health tips validation failed: healthTips array is empty');
+                    return false;
+                }
+                console3.log(`Health tips validated: ${healthTips.length} tips loaded`);
+                return true;
+            }
+
+            if (element) {
+                if (!validateHealthTips()) {
+                    console3.warn('Using fallback health tip due to validation failure');
+                    element.textContent = "Stay healthy and take care of yourself! 💚";
+                }
+            }
+        })();
+
+        // Scenario 4: Runtime Error
+        (function() {
+            const console4 = createConsoleCapture('console4');
+            const healthTips = ["Tip 1", "Tip 2", "Tip 3"];
+            const element = document.getElementById('healthTipText4');
+            
+            if (element) {
+                element.textContent = healthTips[0];
+                console4.log('Initial tip displayed');
+            }
+
+            window.simulateRotationError = function() {
+                try {
+                    console4.log('Attempting tip rotation...');
+                    // Simulate an error
+                    throw new Error('Simulated rotation error');
+                } catch (error) {
+                    console4.error(`Error during health tip rotation: ${error.message}`);
+                    console4.log('Page continues to function despite error');
+                }
+            };
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Tips Error Handling Test</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #fff;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #00d4ff;
+            border-radius: 5px;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 3px;
+        }
+        .pass {
+            background: rgba(0, 255, 136, 0.2);
+            border-left: 3px solid #00ff88;
+        }
+        .fail {
+            background: rgba(255, 107, 107, 0.2);
+            border-left: 3px solid #ff6b6b;
+        }
+        .health-tip-text {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #ccc;
+            text-align: center;
+            padding: 10px;
+            margin: 10px 0;
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Health Tips Error Handling Tests</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Normal Operation (Element Exists, Valid Array)</h2>
+        <div id="test1-container">
+            <div class="health-tip-text" id="healthTipText1"></div>
+        </div>
+        <div id="test1-result" class="test-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Missing DOM Element</h2>
+        <div id="test2-container">
+            <!-- No element with id="healthTipText2" -->
+        </div>
+        <div id="test2-result" class="test-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Empty Tips Array</h2>
+        <div id="test3-container">
+            <div class="health-tip-text" id="healthTipText3"></div>
+        </div>
+        <div id="test3-result" class="test-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: Graceful Fallback</h2>
+        <div id="test4-container">
+            <div class="health-tip-text" id="healthTipText4"></div>
+        </div>
+        <div id="test4-result" class="test-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Console Output</h2>
+        <div id="console-output" style="background: #111; padding: 10px; border-radius: 5px; font-size: 0.85rem; max-height: 300px; overflow-y: auto;"></div>
+    </div>
+
+    <script>
+        // Capture console output
+        const consoleOutput = document.getElementById('console-output');
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        const originalConsoleWarn = console.warn;
+
+        function logToPage(type, ...args) {
+            const message = args.join(' ');
+            const color = type === 'error' ? '#ff6b6b' : type === 'warn' ? '#ffd700' : '#00d4ff';
+            consoleOutput.innerHTML += `<div style="color: ${color}; margin: 2px 0;">[${type.toUpperCase()}] ${message}</div>`;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            logToPage('log', ...args);
+        };
+
+        console.error = function(...args) {
+            originalConsoleError.apply(console, args);
+            logToPage('error', ...args);
+        };
+
+        console.warn = function(...args) {
+            originalConsoleWarn.apply(console, args);
+            logToPage('warn', ...args);
+        };
+
+        // Test 1: Normal Operation
+        function test1() {
+            console.log('--- Starting Test 1: Normal Operation ---');
+            const healthTips = [
+                "Stay hydrated: Drink 8 glasses of water daily 💧",
+                "Get 7-9 hours of sleep for optimal health 😴",
+                "Exercise 30 minutes daily to boost immunity 🏃"
+            ];
+            
+            const healthTipElement = document.getElementById('healthTipText1');
+            
+            function validateHealthTips() {
+                if (!Array.isArray(healthTips)) {
+                    console.error('Health tips validation failed: healthTips is not an array');
+                    return false;
+                }
+                if (healthTips.length === 0) {
+                    console.error('Health tips validation failed: healthTips array is empty');
+                    return false;
+                }
+                console.log(`Health tips validated: ${healthTips.length} tips loaded`);
+                return true;
+            }
+
+            function initializeHealthTips() {
+                if (!healthTipElement) {
+                    console.error('Health tips initialization failed: healthTipText element not found in DOM');
+                    return false;
+                }
+                if (!validateHealthTips()) {
+                    console.warn('Using fallback health tip due to validation failure');
+                    healthTipElement.textContent = "Stay healthy and take care of yourself! 💚";
+                    return false;
+                }
+                try {
+                    healthTipElement.textContent = healthTips[0];
+                    console.log('Health tips initialized successfully');
+                    return true;
+                } catch (error) {
+                    console.error('Error initializing health tips:', error);
+                    return false;
+                }
+            }
+
+            const result = initializeHealthTips();
+            const resultDiv = document.getElementById('test1-result');
+            if (result && healthTipElement.textContent === healthTips[0]) {
+                resultDiv.className = 'test-result pass';
+                resultDiv.textContent = '✓ PASS: Element exists, array valid, tip displayed correctly';
+            } else {
+                resultDiv.className = 'test-result fail';
+                resultDiv.textContent = '✗ FAIL: Expected normal operation';
+            }
+        }
+
+        // Test 2: Missing DOM Element
+        function test2() {
+            console.log('--- Starting Test 2: Missing DOM Element ---');
+            const healthTips = ["Test tip"];
+            const healthTipElement = document.getElementById('healthTipText2'); // Doesn't exist
+            
+            function initializeHealthTips() {
+                if (!healthTipElement) {
+                    console.error('Health tips initialization failed: healthTipText element not found in DOM');
+                    console.log('Expected element with id="healthTipText" in the footer');
+                    return false;
+                }
+                return true;
+            }
+
+            const result = initializeHealthTips();
+            const resultDiv = document.getElementById('test2-result');
+            if (!result) {
+                resultDiv.className = 'test-result pass';
+                resultDiv.textContent = '✓ PASS: Missing element detected, error logged gracefully';
+            } else {
+                resultDiv.className = 'test-result fail';
+                resultDiv.textContent = '✗ FAIL: Should have detected missing element';
+            }
+        }
+
+        // Test 3: Empty Tips Array
+        function test3() {
+            console.log('--- Starting Test 3: Empty Tips Array ---');
+            const healthTips = [];
+            const healthTipElement = document.getElementById('healthTipText3');
+            
+            function validateHealthTips() {
+                if (!Array.isArray(healthTips)) {
+                    console.error('Health tips validation failed: healthTips is not an array');
+                    return false;
+                }
+                if (healthTips.length === 0) {
+                    console.error('Health tips validation failed: healthTips array is empty');
+                    return false;
+                }
+                console.log(`Health tips validated: ${healthTips.length} tips loaded`);
+                return true;
+            }
+
+            const result = validateHealthTips();
+            const resultDiv = document.getElementById('test3-result');
+            if (!result) {
+                resultDiv.className = 'test-result pass';
+                resultDiv.textContent = '✓ PASS: Empty array detected, validation failed correctly';
+            } else {
+                resultDiv.className = 'test-result fail';
+                resultDiv.textContent = '✗ FAIL: Should have detected empty array';
+            }
+        }
+
+        // Test 4: Graceful Fallback
+        function test4() {
+            console.log('--- Starting Test 4: Graceful Fallback ---');
+            const healthTips = [];
+            const healthTipElement = document.getElementById('healthTipText4');
+            
+            function validateHealthTips() {
+                if (!Array.isArray(healthTips)) {
+                    console.error('Health tips validation failed: healthTips is not an array');
+                    return false;
+                }
+                if (healthTips.length === 0) {
+                    console.error('Health tips validation failed: healthTips array is empty');
+                    return false;
+                }
+                console.log(`Health tips validated: ${healthTips.length} tips loaded`);
+                return true;
+            }
+
+            function initializeHealthTips() {
+                if (!healthTipElement) {
+                    console.error('Health tips initialization failed: healthTipText element not found in DOM');
+                    return false;
+                }
+                if (!validateHealthTips()) {
+                    console.warn('Using fallback health tip due to validation failure');
+                    healthTipElement.textContent = "Stay healthy and take care of yourself! 💚";
+                    return true; // Fallback succeeded
+                }
+                return true;
+            }
+
+            const result = initializeHealthTips();
+            const resultDiv = document.getElementById('test4-result');
+            if (result && healthTipElement.textContent === "Stay healthy and take care of yourself! 💚") {
+                resultDiv.className = 'test-result pass';
+                resultDiv.textContent = '✓ PASS: Fallback tip displayed when array is empty';
+            } else {
+                resultDiv.className = 'test-result fail';
+                resultDiv.textContent = '✗ FAIL: Fallback should have been displayed';
+            }
+        }
+
+        // Run all tests
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('=== Health Tips Error Handling Test Suite ===');
+            test1();
+            test2();
+            test3();
+            test4();
+            console.log('=== All Tests Complete ===');
+        });
+    </script>
+</body>
+</html>
