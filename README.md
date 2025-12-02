@@ -243,7 +243,7 @@ This isn't production medical AI—it's a **proof of concept** that demonstrates
 
 ## 📝 License
 
-MIT License - See [LICENSE](LICENSE) for details
+MIT License 
 
 ## 🤝 Contributing
 
