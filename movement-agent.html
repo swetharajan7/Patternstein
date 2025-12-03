@@ -422,6 +422,61 @@
             color: #00e6ff;
             text-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
         }
+
+        /* Main Grid Responsive Layout */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (min-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .content {
+                padding: 40px 15px;
+            }
+
+            .agent-intro {
+                padding: 30px 20px;
+            }
+
+            .agent-intro h2 {
+                font-size: 2rem;
+            }
+
+            .agent-intro p {
+                font-size: 1.1rem;
+            }
+
+            .capabilities {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-menu {
+                top: 80px;
+                right: 15px;
+                gap: 15px;
+            }
+
+            .logo {
+                top: 20px;
+                left: 20px;
+                width: 40px;
+                height: 40px;
+            }
+
+            .theme-toggle {
+                top: 20px;
+                right: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -531,7 +586,7 @@
         </div>
 
         <!-- Main Grid -->
-        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 20px;">
+        <div class="main-grid">
             <!-- Video Section -->
             <div style="background: rgba(255, 152, 0, 0.1); border: 2px solid rgba(255, 152, 0, 0.3); border-radius: 15px; padding: 20px;">
                 <div style="position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 10px; overflow: hidden;">
