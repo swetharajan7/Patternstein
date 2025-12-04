@@ -634,6 +634,19 @@
                     <span class="monitoring-label">Posture Monitoring</span>
                 </div>
 
+                <!-- Debug Panel Toggle -->
+                <div style="margin-top: 10px;">
+                    <button id="debugToggle" style="background: rgba(0, 212, 255, 0.2); border: 1px solid rgba(0, 212, 255, 0.3); color: #00d4ff; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-family: 'Courier New', monospace;">
+                        Show Debug Info
+                    </button>
+                </div>
+
+                <!-- Debug Panel (hidden by default) -->
+                <div id="debugPanel" style="display: none; background: rgba(0, 0, 0, 0.5); border-radius: 8px; padding: 12px; margin-top: 10px; font-size: 0.8rem; font-family: monospace;">
+                    <div style="color: #00d4ff; font-weight: bold; margin-bottom: 8px;">Landmark Visibility</div>
+                    <div id="debugInfo" style="color: #ccc; line-height: 1.6;"></div>
+                </div>
+
                 <!-- Real-Time Posture Score -->
                 <div style="background: rgba(0, 0, 0, 0.5); border-radius: 10px; padding: 15px; margin-bottom: 15px;">
                     <div style="color: #ff9800; font-size: 0.9rem; margin-bottom: 8px;">Live Posture Score</div>
@@ -1144,6 +1157,9 @@
             // Draw skeleton overlay
             drawSkeleton(currentLandmarks);
 
+            // Update debug info if panel is visible
+            updateDebugInfo(currentLandmarks);
+
             // Analyze posture if monitoring is enabled
             if (postureMonitor && postureMonitoringEnabled) {
                 try {
@@ -1151,13 +1167,80 @@
                     if (analysis) {
                         updatePostureUI(analysis);
                     } else {
-                        // Analysis returned null - check console for visibility details
+                        // Analysis returned null - show helpful message
                         console.warn('⚠️ Posture analysis returned null - landmarks may not be visible enough');
+                        
+                        // Update UI with helpful message (but don't spam it)
+                        const issuesContainer = document.getElementById('postureIssuesContainer');
+                        if (!issuesContainer.dataset.showingHelp) {
+                            issuesContainer.innerHTML = `
+                                <div style="color: #ffa500; padding: 15px; background: rgba(255, 165, 0, 0.1); border-radius: 8px; border: 1px solid rgba(255, 165, 0, 0.3);">
+                                    <div style="font-weight: bold; margin-bottom: 8px;">⚠️ Can't detect posture</div>
+                                    <div style="font-size: 0.9rem; line-height: 1.6;">
+                                        <strong>Tips:</strong><br>
+                                        • Move closer to camera<br>
+                                        • Ensure upper body is visible<br>
+                                        • Check lighting (avoid backlighting)<br>
+                                        • Make sure head, shoulders, and ears are in frame<br>
+                                        <br>
+                                        <em>Check browser console for detailed visibility info</em>
+                                    </div>
+                                </div>
+                            `;
+                            issuesContainer.dataset.showingHelp = 'true';
+                            
+                            // Clear the flag after 5 seconds so it can show again if needed
+                            setTimeout(() => {
+                                delete issuesContainer.dataset.showingHelp;
+                            }, 5000);
+                        }
                     }
                 } catch (error) {
                     console.error('❌ Posture analysis error:', error);
                 }
             }
+        }
+
+        // Debug panel toggle
+        let debugPanelVisible = false;
+        document.getElementById('debugToggle').addEventListener('click', () => {
+            debugPanelVisible = !debugPanelVisible;
+            const panel = document.getElementById('debugPanel');
+            const button = document.getElementById('debugToggle');
+            
+            if (debugPanelVisible) {
+                panel.style.display = 'block';
+                button.textContent = 'Hide Debug Info';
+            } else {
+                panel.style.display = 'none';
+                button.textContent = 'Show Debug Info';
+            }
+        });
+
+        // Update debug info
+        function updateDebugInfo(landmarks) {
+            if (!debugPanelVisible || !landmarks) return;
+            
+            const debugInfo = document.getElementById('debugInfo');
+            const keyLandmarks = {
+                'Nose': landmarks[0],
+                'Left Ear': landmarks[7],
+                'Right Ear': landmarks[8],
+                'Left Shoulder': landmarks[11],
+                'Right Shoulder': landmarks[12],
+                'Left Hip': landmarks[23],
+                'Right Hip': landmarks[24]
+            };
+            
+            let html = '';
+            for (const [name, lm] of Object.entries(keyLandmarks)) {
+                const vis = lm.visibility;
+                const color = vis > 0.2 ? '#00ff88' : vis > 0.1 ? '#ffd700' : '#ff6b6b';
+                const status = vis > 0.2 ? '✓' : vis > 0.1 ? '~' : '✗';
+                html += `<div style="color: ${color};">${status} ${name}: ${(vis * 100).toFixed(1)}%</div>`;
+            }
+            
+            debugInfo.innerHTML = html;
         }
 
         // Initialize MediaPipe and Posture Monitor on page load

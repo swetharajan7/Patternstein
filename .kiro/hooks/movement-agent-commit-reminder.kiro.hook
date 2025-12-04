@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Movement Agent Commit Reminder",
+  "description": "Reminds you to push changes to the repository and check the live site at patternstein.com after committing movement agent changes",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "The user has just committed changes to movement agent files. Please remind them to:\n1. Push their changes to the repository (git push)\n2. Check the live site at patternstein.com to verify the movement agent is working correctly\n3. Test the MediaPipe pose detection and skeleton overlay rendering\n4. Verify the changes are reflected on the production site\n\nBe friendly and concise in your reminder."
+  }
+}
