@@ -148,13 +148,17 @@ function analyzeSpine(landmarks) {
 
 function analyzePosture(landmarks) {
   if (!landmarks || landmarks.length !== 33) {
+    console.log('analyzePosture: Invalid landmarks', { hasLandmarks: !!landmarks, length: landmarks?.length });
     return null;
   }
   
   const keyLandmarks = [0, 7, 11, 12, 23, 24];
-  const allVisible = keyLandmarks.every(idx => landmarks[idx].visibility > 0.5);
+  const visibilityInfo = keyLandmarks.map(idx => ({ idx, visibility: landmarks[idx].visibility }));
+  // Lower threshold to 0.3 for better detection
+  const allVisible = keyLandmarks.every(idx => landmarks[idx].visibility > 0.3);
   
   if (!allVisible) {
+    console.log('analyzePosture: Key landmarks not visible enough', visibilityInfo);
     return null;
   }
   
@@ -167,6 +171,8 @@ function analyzePosture(landmarks) {
     shoulders.score * 0.25 +
     spine.score * 0.40
   );
+  
+  console.log('analyzePosture: Analysis complete', { overall, neck: neck.score, shoulders: shoulders.score, spine: spine.score });
   
   return { overall, neck, shoulders, spine };
 }

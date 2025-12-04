@@ -955,7 +955,7 @@
                 const startLm = landmarks[start];
                 const endLm = landmarks[end];
 
-                if (startLm && endLm && startLm.visibility > 0.5 && endLm.visibility > 0.5) {
+                if (startLm && endLm && startLm.visibility > 0.3 && endLm.visibility > 0.3) {
                     ctx.beginPath();
                     ctx.moveTo(startLm.x * width, startLm.y * height);
                     ctx.lineTo(endLm.x * width, endLm.y * height);
@@ -967,7 +967,7 @@
             ctx.shadowBlur = 15;
             for (let i = 0; i < landmarks.length; i++) {
                 const lm = landmarks[i];
-                if (lm.visibility > 0.5) {
+                if (lm.visibility > 0.3) {
                     // Color code by body part
                     if (i <= 10) {
                         // Face - cyan
@@ -1138,7 +1138,7 @@
             currentLandmarks = results.poseLandmarks;
 
             // Update landmarks count
-            const visibleCount = currentLandmarks.filter(lm => lm.visibility > 0.5).length;
+            const visibleCount = currentLandmarks.filter(lm => lm.visibility > 0.3).length;
             document.getElementById('landmarksValue').textContent = `${visibleCount}/33`;
 
             // Draw skeleton overlay
