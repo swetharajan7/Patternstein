@@ -19,11 +19,11 @@ fi
 
 echo ""
 echo "📦 Installing dependencies..."
-pip install torch torchvision onnxruntime pillow fastapi python-multipart uvicorn numpy
+pip3 install torch torchvision onnxruntime pillow fastapi python-multipart uvicorn numpy
 
 echo ""
 echo "🎓 Training model (this will take ~5 minutes)..."
-python train_simple_model.py
+python3 train_simple_model.py
 
 if [ $? -eq 0 ]; then
     echo ""
