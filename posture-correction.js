@@ -153,12 +153,17 @@ function analyzePosture(landmarks) {
   }
   
   const keyLandmarks = [0, 7, 11, 12, 23, 24];
-  const visibilityInfo = keyLandmarks.map(idx => ({ idx, visibility: landmarks[idx].visibility }));
-  // Lower threshold to 0.3 for better detection
-  const allVisible = keyLandmarks.every(idx => landmarks[idx].visibility > 0.3);
+  const visibilityInfo = keyLandmarks.map(idx => ({ 
+    idx, 
+    name: ['nose', 'leftEar', 'leftShoulder', 'rightShoulder', 'leftHip', 'rightHip'][keyLandmarks.indexOf(idx)],
+    visibility: landmarks[idx].visibility.toFixed(2) 
+  }));
+  
+  // Lower threshold to 0.2 for better detection (MediaPipe can give low scores)
+  const allVisible = keyLandmarks.every(idx => landmarks[idx].visibility > 0.2);
   
   if (!allVisible) {
-    console.log('analyzePosture: Key landmarks not visible enough', visibilityInfo);
+    console.warn('⚠️ POSTURE: Key landmarks not visible enough:', visibilityInfo);
     return null;
   }
   
@@ -172,7 +177,14 @@ function analyzePosture(landmarks) {
     spine.score * 0.40
   );
   
-  console.log('analyzePosture: Analysis complete', { overall, neck: neck.score, shoulders: shoulders.score, spine: spine.score });
+  console.log('✅ POSTURE: Analysis complete', { 
+    overall, 
+    neck: neck.score, 
+    shoulders: shoulders.score, 
+    spine: spine.score,
+    neckAngle: neck.angle.toFixed(1),
+    spineAngle: spine.angle.toFixed(1)
+  });
   
   return { overall, neck, shoulders, spine };
 }

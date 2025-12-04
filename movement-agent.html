@@ -1151,10 +1151,11 @@
                     if (analysis) {
                         updatePostureUI(analysis);
                     } else {
-                        console.warn('Posture analysis returned null');
+                        // Analysis returned null - check console for visibility details
+                        console.warn('⚠️ Posture analysis returned null - landmarks may not be visible enough');
                     }
                 } catch (error) {
-                    console.error('Posture analysis error:', error);
+                    console.error('❌ Posture analysis error:', error);
                 }
             }
         }
