@@ -997,17 +997,34 @@
 
         // Initialize Posture Monitor
         function initializePostureMonitor() {
-            postureMonitor = new PostureMonitor();
-            
-            // Set up monitoring toggle
-            const toggle = document.getElementById('postureMonitoringToggle');
-            toggle.addEventListener('change', (e) => {
-                postureMonitoringEnabled = e.target.checked;
-                if (!postureMonitoringEnabled) {
-                    // Clear UI when disabled
-                    document.getElementById('postureIssuesContainer').innerHTML = '<p style="color: #666;">Monitoring disabled</p>';
+            try {
+                console.log('Initializing PostureMonitor...');
+                
+                if (typeof PostureMonitor === 'undefined') {
+                    console.error('PostureMonitor class not found! Check if posture-correction.js is loaded.');
+                    return;
                 }
-            });
+                
+                postureMonitor = new PostureMonitor();
+                console.log('PostureMonitor initialized successfully');
+                
+                // Set up monitoring toggle
+                const toggle = document.getElementById('postureMonitoringToggle');
+                if (toggle) {
+                    toggle.addEventListener('change', (e) => {
+                        postureMonitoringEnabled = e.target.checked;
+                        console.log('Posture monitoring:', postureMonitoringEnabled ? 'enabled' : 'disabled');
+                        if (!postureMonitoringEnabled) {
+                            // Clear UI when disabled
+                            document.getElementById('postureIssuesContainer').innerHTML = '<p style="color: #666;">Monitoring disabled</p>';
+                        }
+                    });
+                } else {
+                    console.error('Posture monitoring toggle not found');
+                }
+            } catch (error) {
+                console.error('Error initializing PostureMonitor:', error);
+            }
         }
 
         // Format time in MM:SS
@@ -1118,9 +1135,15 @@
 
             // Analyze posture if monitoring is enabled
             if (postureMonitor && postureMonitoringEnabled) {
-                const analysis = postureMonitor.analyze(currentLandmarks);
-                if (analysis) {
-                    updatePostureUI(analysis);
+                try {
+                    const analysis = postureMonitor.analyze(currentLandmarks);
+                    if (analysis) {
+                        updatePostureUI(analysis);
+                    } else {
+                        console.warn('Posture analysis returned null');
+                    }
+                } catch (error) {
+                    console.error('Posture analysis error:', error);
                 }
             }
         }

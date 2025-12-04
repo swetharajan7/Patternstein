@@ -1,0 +1,59 @@
+{
+  "hooks": [
+    {
+      "id": "posture-monitor-on-save",
+      "name": "Update Posture Tests on Save",
+      "description": "Automatically run posture correction tests when movement agent files are saved",
+      "trigger": {
+        "type": "onFileSave",
+        "filePattern": "movement-agent.html|posture-correction.*|src/utils/postureAnalyzer.ts"
+      },
+      "action": {
+        "type": "command",
+        "command": "npm test posture"
+      },
+      "enabled": false
+    },
+    {
+      "id": "test-posture-on-commit",
+      "name": "Test Posture System Before Commit",
+      "description": "Run posture correction tests before committing changes",
+      "trigger": {
+        "type": "preCommit"
+      },
+      "action": {
+        "type": "command",
+        "command": "npm test -- posture-correction"
+      },
+      "enabled": false
+    },
+    {
+      "id": "deploy-reminder",
+      "name": "Deployment Reminder",
+      "description": "Remind to push changes after committing movement agent updates",
+      "trigger": {
+        "type": "onCommit",
+        "filePattern": "movement-agent.html"
+      },
+      "action": {
+        "type": "message",
+        "message": "💡 Remember to push changes to deploy to patternstein.com!\n\nRun: git push"
+      },
+      "enabled": true
+    },
+    {
+      "id": "posture-analysis-reminder",
+      "name": "Posture Analysis Documentation",
+      "description": "Show posture analysis documentation when editing related files",
+      "trigger": {
+        "type": "onFileOpen",
+        "filePattern": "posture.*\\.(ts|js|tsx)"
+      },
+      "action": {
+        "type": "message",
+        "message": "📚 Posture Analysis System\n\nKey thresholds:\n- Neck: 150° (good), 140° (warning), 130° (critical)\n- Shoulders: 5° max asymmetry\n- Spine: 170° (good), 160° (warning), 150° (critical)\n\nSee POSTURE_CORRECTION_HOOK.md for full documentation."
+      },
+      "enabled": true
+    }
+  ]
+}

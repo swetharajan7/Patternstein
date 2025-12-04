@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Posture Correction</title>
+    <link rel="stylesheet" href="posture-correction.css">
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #fff;
+            padding: 20px;
+        }
+        .test-section {
+            background: rgba(255, 152, 0, 0.1);
+            border: 2px solid rgba(255, 152, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
+        .error { background: rgba(255, 107, 107, 0.2); color: #ff6b6b; }
+    </style>
+</head>
+<body>
+    <div id="postureAlertContainer"></div>
+    
+    <h1>🧪 Posture Correction Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Script Loading</h2>
+        <div id="test1" class="status">Testing...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: PostureMonitor Class</h2>
+        <div id="test2" class="status">Testing...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3: Mock Landmarks Analysis</h2>
+        <div id="test3" class="status">Testing...</div>
+        <div id="test3-details"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 4: Notification System</h2>
+        <button onclick="testNotification()" style="padding: 10px 20px; font-size: 1rem; cursor: pointer;">
+            Test Notification
+        </button>
+        <div id="test4" class="status">Click button to test</div>
+    </div>
+
+    <script src="posture-correction.js"></script>
+    <script>
+        // Test 1: Check if script loaded
+        function test1() {
+            const test1El = document.getElementById('test1');
+            if (typeof PostureMonitor !== 'undefined') {
+                test1El.textContent = '✅ posture-correction.js loaded successfully';
+                test1El.className = 'status success';
+                return true;
+            } else {
+                test1El.textContent = '❌ PostureMonitor class not found';
+                test1El.className = 'status error';
+                return false;
+            }
+        }
+        
+        // Test 2: Create PostureMonitor instance
+        let monitor;
+        function test2() {
+            const test2El = document.getElementById('test2');
+            try {
+                monitor = new PostureMonitor();
+                test2El.textContent = '✅ PostureMonitor instance created';
+                test2El.className = 'status success';
+                return true;
+            } catch (error) {
+                test2El.textContent = `❌ Error creating PostureMonitor: ${error.message}`;
+                test2El.className = 'status error';
+                return false;
+            }
+        }
+        
+        // Test 3: Analyze mock landmarks
+        function test3() {
+            const test3El = document.getElementById('test3');
+            const test3Details = document.getElementById('test3-details');
+            
+            // Create mock landmarks (good posture)
+            const mockLandmarks = [];
+            for (let i = 0; i < 33; i++) {
+                mockLandmarks.push({
+                    x: 0.5 + (Math.random() - 0.5) * 0.1,
+                    y: 0.3 + (i / 33) * 0.4,
+                    z: 0,
+                    visibility: 0.9
+                });
+            }
+            
+            try {
+                monitor.start();
+                const analysis = monitor.analyze(mockLandmarks);
+                
+                if (analysis && analysis.score) {
+                    test3El.textContent = '✅ Analysis working';
+                    test3El.className = 'status success';
+                    
+                    test3Details.innerHTML = `
+                        <div style="margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 5px;">
+                            <strong>Overall Score:</strong> ${analysis.score.overall}<br>
+                            <strong>Neck:</strong> ${analysis.score.neck.score} (${analysis.score.neck.status})<br>
+                            <strong>Shoulders:</strong> ${analysis.score.shoulders.score} (${analysis.score.shoulders.status})<br>
+                            <strong>Spine:</strong> ${analysis.score.spine.score} (${analysis.score.spine.status})<br>
+                            <strong>Issues:</strong> ${analysis.issues.length}
+                        </div>
+                    `;
+                    return true;
+                } else {
+                    test3El.textContent = '❌ Analysis returned null or invalid data';
+                    test3El.className = 'status error';
+                    return false;
+                }
+            } catch (error) {
+                test3El.textContent = `❌ Error during analysis: ${error.message}`;
+                test3El.className = 'status error';
+                test3Details.innerHTML = `<pre style="color: #ff6b6b;">${error.stack}</pre>`;
+                return false;
+            }
+        }
+        
+        // Test 4: Notification system
+        function testNotification() {
+            const test4El = document.getElementById('test4');
+            try {
+                const mockIssue = {
+                    type: 'slouching',
+                    severity: 'moderate',
+                    message: 'Test slouching detected',
+                    recommendation: 'This is a test notification',
+                    icon: '🔴'
+                };
+                
+                showPostureNotification(mockIssue);
+                test4El.textContent = '✅ Notification triggered (check top-right corner)';
+                test4El.className = 'status success';
+            } catch (error) {
+                test4El.textContent = `❌ Error: ${error.message}`;
+                test4El.className = 'status error';
+            }
+        }
+        
+        // Run tests
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (test1()) {
+                    setTimeout(() => {
+                        if (test2()) {
+                            setTimeout(() => {
+                                test3();
+                            }, 500);
+                        }
+                    }, 500);
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>
