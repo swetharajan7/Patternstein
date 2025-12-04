@@ -41,9 +41,14 @@ class SyntheticBreastCancerDataset(Dataset):
             img_array = np.random.randint(50, 150, (224, 224, 3), dtype=np.uint8)
             # Add irregular patterns
             for _ in range(50):
-                x, y = np.random.randint(0, 200, 2)
-                size = np.random.randint(10, 30)
-                img_array[x:x+size, y:y+size] = np.random.randint(20, 80, (size, size, 3))
+                x, y = np.random.randint(0, 180, 2)
+                size = np.random.randint(10, 25)
+                # Ensure we don't go out of bounds
+                x_end = min(x + size, 224)
+                y_end = min(y + size, 224)
+                actual_size_x = x_end - x
+                actual_size_y = y_end - y
+                img_array[x:x_end, y:y_end] = np.random.randint(20, 80, (actual_size_x, actual_size_y, 3))
         
         img = Image.fromarray(img_array)
         
@@ -191,7 +196,7 @@ def train_model(num_epochs=10, batch_size=32):
 
 if __name__ == "__main__":
     try:
-        train_model(num_epochs=10, batch_size=32)
+        train_model(num_epochs=5, batch_size=32)  # Reduced to 5 epochs for faster training
     except KeyboardInterrupt:
         print("\n\n👋 Training interrupted by user")
     except Exception as e:
