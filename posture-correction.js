@@ -375,10 +375,10 @@ class PostureMonitor {
   }
   
   analyze(landmarks) {
-    if (!this.isMonitoring || !landmarks) return;
+    if (!this.isMonitoring || !landmarks) return null;
     
     const score = analyzePosture(landmarks);
-    if (!score) return;
+    if (!score) return null;
     
     this.currentScore = score;
     this.scoreHistory.push(score.overall);
