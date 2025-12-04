@@ -117,6 +117,32 @@ function analyzeSpine(landmarks) {
     y: (leftShoulder.y + rightShoulder.y) / 2,
   };
   
+  // Check if hips are visible enough for full spine analysis
+  const hipsVisible = leftHip.visibility > 0.2 && rightHip.visibility > 0.2;
+  
+  if (!hipsVisible) {
+    // Upper body only mode - use shoulder angle as proxy
+    const shoulderAngle = Math.abs(Math.atan2(
+      rightShoulder.y - leftShoulder.y,
+      rightShoulder.x - leftShoulder.x
+    ) * 180 / Math.PI);
+    
+    // Shoulders should be roughly horizontal (close to 0 or 180 degrees)
+    const shoulderTilt = Math.min(shoulderAngle, 180 - shoulderAngle);
+    
+    let status = 'good';
+    let score = 100;
+    
+    if (shoulderTilt > 15) {
+      status = 'tilted';
+      score = 70;
+    } else if (shoulderTilt > 10) {
+      score = 85;
+    }
+    
+    return { status, angle: 90, score }; // Return neutral angle for upper body mode
+  }
+  
   const hipMidpoint = {
     x: (leftHip.x + rightHip.x) / 2,
     y: (leftHip.y + rightHip.y) / 2,
@@ -155,12 +181,15 @@ function analyzePosture(landmarks) {
     return null;
   }
   
-  // Check essential landmarks (nose, shoulders, hips)
-  const essentialLandmarks = [0, 11, 12, 23, 24];
+  // Check essential landmarks (nose, shoulders) - hips optional for upper body only setups
+  const essentialLandmarks = [0, 11, 12];
   // Check if at least one ear is visible
   const leftEarVisible = landmarks[7].visibility > 0.2;
   const rightEarVisible = landmarks[8].visibility > 0.2;
   const eitherEarVisible = leftEarVisible || rightEarVisible;
+  
+  // Check if hips are visible (optional for full body analysis)
+  const hipsVisible = landmarks[23].visibility > 0.2 && landmarks[24].visibility > 0.2;
   
   const visibilityInfo = {
     nose: landmarks[0].visibility.toFixed(2),
@@ -169,7 +198,8 @@ function analyzePosture(landmarks) {
     leftShoulder: landmarks[11].visibility.toFixed(2),
     rightShoulder: landmarks[12].visibility.toFixed(2),
     leftHip: landmarks[23].visibility.toFixed(2),
-    rightHip: landmarks[24].visibility.toFixed(2)
+    rightHip: landmarks[24].visibility.toFixed(2),
+    hipsVisible: hipsVisible ? 'YES' : 'NO (upper body only mode)'
   };
   
   // Lower threshold to 0.2 for better detection (MediaPipe can give low scores)
@@ -179,6 +209,8 @@ function analyzePosture(landmarks) {
     console.warn('⚠️ POSTURE: Key landmarks not visible enough:', visibilityInfo);
     return null;
   }
+  
+  console.log('✅ POSTURE: Landmarks visible, analyzing...', visibilityInfo);
   
   const neck = analyzeNeck(landmarks);
   const shoulders = analyzeShoulders(landmarks);
