@@ -43,10 +43,13 @@ function calculateVerticalDifference(a, b) {
 function analyzeNeck(landmarks) {
   const nose = landmarks[0];
   const leftEar = landmarks[7];
+  const rightEar = landmarks[8];
   const leftShoulder = landmarks[11];
   const rightShoulder = landmarks[12];
   
-  const neckAngle = calculateAngle(nose, leftEar, leftShoulder);
+  // Use whichever ear is more visible, or average if both visible
+  const ear = leftEar.visibility > rightEar.visibility ? leftEar : rightEar;
+  const neckAngle = calculateAngle(nose, ear, leftShoulder);
   
   let status = 'good';
   let score = 100;
@@ -152,17 +155,27 @@ function analyzePosture(landmarks) {
     return null;
   }
   
-  const keyLandmarks = [0, 7, 11, 12, 23, 24];
-  const visibilityInfo = keyLandmarks.map(idx => ({ 
-    idx, 
-    name: ['nose', 'leftEar', 'leftShoulder', 'rightShoulder', 'leftHip', 'rightHip'][keyLandmarks.indexOf(idx)],
-    visibility: landmarks[idx].visibility.toFixed(2) 
-  }));
+  // Check essential landmarks (nose, shoulders, hips)
+  const essentialLandmarks = [0, 11, 12, 23, 24];
+  // Check if at least one ear is visible
+  const leftEarVisible = landmarks[7].visibility > 0.2;
+  const rightEarVisible = landmarks[8].visibility > 0.2;
+  const eitherEarVisible = leftEarVisible || rightEarVisible;
+  
+  const visibilityInfo = {
+    nose: landmarks[0].visibility.toFixed(2),
+    leftEar: landmarks[7].visibility.toFixed(2),
+    rightEar: landmarks[8].visibility.toFixed(2),
+    leftShoulder: landmarks[11].visibility.toFixed(2),
+    rightShoulder: landmarks[12].visibility.toFixed(2),
+    leftHip: landmarks[23].visibility.toFixed(2),
+    rightHip: landmarks[24].visibility.toFixed(2)
+  };
   
   // Lower threshold to 0.2 for better detection (MediaPipe can give low scores)
-  const allVisible = keyLandmarks.every(idx => landmarks[idx].visibility > 0.2);
+  const essentialVisible = essentialLandmarks.every(idx => landmarks[idx].visibility > 0.2);
   
-  if (!allVisible) {
+  if (!essentialVisible || !eitherEarVisible) {
     console.warn('⚠️ POSTURE: Key landmarks not visible enough:', visibilityInfo);
     return null;
   }
