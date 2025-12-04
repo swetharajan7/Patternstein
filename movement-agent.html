@@ -689,7 +689,7 @@
                 <div style="margin-top: 20px;">
                     <h3 style="color: #ff9800; margin-bottom: 10px;">⚠️ Current Issues</h3>
                     <div id="postureIssuesContainer" class="posture-issues-list">
-                        <p style="color: #666;">No issues detected - Great posture! 🎉</p>
+                        <p style="color: #666;">Start camera to begin monitoring...</p>
                     </div>
                 </div>
             </div>
@@ -810,6 +810,10 @@
                 // Start posture monitoring
                 if (postureMonitor && postureMonitoringEnabled) {
                     postureMonitor.start();
+                    console.log('Posture monitoring started');
+                    document.getElementById('postureIssuesContainer').innerHTML = '<p style="color: #00ff88;">Monitoring active - Analyzing posture...</p>';
+                } else {
+                    console.warn('Posture monitor not available:', { postureMonitor: !!postureMonitor, enabled: postureMonitoringEnabled });
                 }
                 
                 updateStatus('✅ Camera active - Real-time posture monitoring enabled', 'active');
@@ -908,7 +912,7 @@
             document.getElementById('avgScore').textContent = '--';
             document.getElementById('goodPostureTime').textContent = '0:00';
             document.getElementById('issueCount').textContent = '0';
-            document.getElementById('postureIssuesContainer').innerHTML = '<p style="color: #666;">No issues detected yet...</p>';
+            document.getElementById('postureIssuesContainer').innerHTML = '<p style="color: #666;">Start camera to begin monitoring...</p>';
             document.getElementById('postureScoreBadge').style.display = 'none';
         });
 
@@ -1016,7 +1020,10 @@
                         console.log('Posture monitoring:', postureMonitoringEnabled ? 'enabled' : 'disabled');
                         if (!postureMonitoringEnabled) {
                             // Clear UI when disabled
-                            document.getElementById('postureIssuesContainer').innerHTML = '<p style="color: #666;">Monitoring disabled</p>';
+                            document.getElementById('postureIssuesContainer').innerHTML = '<p style="color: #ffa500;">⚠️ Monitoring disabled - Enable toggle to resume</p>';
+                        } else if (camera) {
+                            // Re-enable monitoring
+                            document.getElementById('postureIssuesContainer').innerHTML = '<p style="color: #00ff88;">✅ Monitoring enabled - Analyzing posture...</p>';
                         }
                     });
                 } else {
