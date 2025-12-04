@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movement Agent - Patternstein</title>
     <link rel="icon" type="image/svg+xml" href="kolam-favicon.svg?v=2">
+    <link rel="stylesheet" href="posture-correction.css">
     <style>
         * {
             margin: 0;
@@ -481,6 +482,9 @@
     </style>
 </head>
 <body>
+    <!-- Posture Alert Container -->
+    <div id="postureAlertContainer"></div>
+    
     <div class="header">
         <div class="logo" onclick="window.location.href='index.html'">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
@@ -622,35 +626,70 @@
 
             <!-- Analysis Section -->
             <div style="background: rgba(255, 152, 0, 0.1); border: 2px solid rgba(255, 152, 0, 0.3); border-radius: 15px; padding: 20px;">
-                <h2 style="color: #ff9800; margin-bottom: 15px; margin-top: 0;">📊 Analysis Results</h2>
+                <h2 style="color: #ff9800; margin-bottom: 15px; margin-top: 0;">📊 Real-Time Posture Analysis</h2>
 
-                <div style="background: rgba(0, 0, 0, 0.5); border-radius: 10px; padding: 15px; margin-bottom: 15px;">
-                    <div style="color: #ff9800; font-size: 0.9rem; margin-bottom: 5px;">Overall Health Score</div>
-                    <div id="overallScore" style="font-size: 2rem; font-weight: bold; color: #00ff88;">--</div>
-                    <div style="width: 100%; height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; margin-top: 8px; overflow: hidden;">
-                        <div id="overallBar" style="height: 100%; background: linear-gradient(90deg, #ff6b6b, #ffd700, #00ff88); transition: width 0.5s ease; width: 0%;"></div>
-                    </div>
+                <!-- Posture Monitoring Toggle -->
+                <div class="monitoring-toggle">
+                    <input type="checkbox" id="postureMonitoringToggle" checked>
+                    <span class="monitoring-label">Posture Monitoring</span>
                 </div>
 
+                <!-- Real-Time Posture Score -->
                 <div style="background: rgba(0, 0, 0, 0.5); border-radius: 10px; padding: 15px; margin-bottom: 15px;">
-                    <div style="color: #ff9800; font-size: 0.9rem; margin-bottom: 5px;">Posture Score</div>
-                    <div id="postureScore" style="font-size: 2rem; font-weight: bold; color: #00ff88;">--</div>
+                    <div style="color: #ff9800; font-size: 0.9rem; margin-bottom: 8px;">Live Posture Score</div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div id="postureScoreDisplay" style="font-size: 2.5rem; font-weight: bold; color: #00ff88;">--</div>
+                        <div id="postureScoreBadge" class="posture-score-badge" style="display: none;">
+                            <span id="postureScoreEmoji">🟢</span>
+                            <span id="postureScoreText">Excellent</span>
+                        </div>
+                    </div>
                     <div style="width: 100%; height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; margin-top: 8px; overflow: hidden;">
                         <div id="postureBar" style="height: 100%; background: linear-gradient(90deg, #ff6b6b, #ffd700, #00ff88); transition: width 0.5s ease; width: 0%;"></div>
                     </div>
                 </div>
 
-                <div style="margin-top: 20px;">
-                    <h3 style="color: #ff9800; margin-bottom: 10px;">⚠️ Detections</h3>
-                    <div id="detectionsContainer" style="color: #666;">
-                        <p>No issues detected yet...</p>
+                <!-- Component Scores -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px;">
+                    <div style="background: rgba(0, 0, 0, 0.3); padding: 10px; border-radius: 8px; border: 1px solid rgba(0, 212, 255, 0.2);">
+                        <div style="color: #00d4ff; font-size: 0.75rem; margin-bottom: 5px;">Neck</div>
+                        <div id="neckScore" style="color: #fff; font-size: 1.2rem; font-weight: bold;">--</div>
+                    </div>
+                    <div style="background: rgba(0, 0, 0, 0.3); padding: 10px; border-radius: 8px; border: 1px solid rgba(0, 255, 136, 0.2);">
+                        <div style="color: #00ff88; font-size: 0.75rem; margin-bottom: 5px;">Shoulders</div>
+                        <div id="shouldersScore" style="color: #fff; font-size: 1.2rem; font-weight: bold;">--</div>
+                    </div>
+                    <div style="background: rgba(0, 0, 0, 0.3); padding: 10px; border-radius: 8px; border: 1px solid rgba(255, 152, 0, 0.2);">
+                        <div style="color: #ff9800; font-size: 0.75rem; margin-bottom: 5px;">Spine</div>
+                        <div id="spineScore" style="color: #fff; font-size: 1.2rem; font-weight: bold;">--</div>
                     </div>
                 </div>
 
+                <!-- Session Statistics -->
+                <div class="session-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">Session Time</div>
+                        <div class="stat-value" id="sessionDuration">0:00</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Avg Score</div>
+                        <div class="stat-value" id="avgScore">--</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Good Posture</div>
+                        <div class="stat-value" id="goodPostureTime">0:00</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Issues</div>
+                        <div class="stat-value" id="issueCount">0</div>
+                    </div>
+                </div>
+
+                <!-- Current Issues -->
                 <div style="margin-top: 20px;">
-                    <h3 style="color: #ff9800; margin-bottom: 10px;">💡 Recommendations</h3>
-                    <div id="recommendationsContainer" style="color: #666;">
-                        <p>Start analysis to get recommendations...</p>
+                    <h3 style="color: #ff9800; margin-bottom: 10px;">⚠️ Current Issues</h3>
+                    <div id="postureIssuesContainer" class="posture-issues-list">
+                        <p style="color: #666;">No issues detected - Great posture! 🎉</p>
                     </div>
                 </div>
             </div>
@@ -697,6 +736,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+    <!-- Posture Correction Hook -->
+    <script src="posture-correction.js"></script>
     <script>
         // Theme Toggle
         const themeToggle = document.getElementById('themeToggle');
@@ -766,7 +807,12 @@
 
                 await camera.start();
                 
-                updateStatus('✅ Camera active - MediaPipe analyzing posture', 'active');
+                // Start posture monitoring
+                if (postureMonitor && postureMonitoringEnabled) {
+                    postureMonitor.start();
+                }
+                
+                updateStatus('✅ Camera active - Real-time posture monitoring enabled', 'active');
                 startBtn.disabled = true;
                 startBtn.style.opacity = '0.5';
                 stopBtn.disabled = false;
@@ -807,12 +853,7 @@
                     frameCount++;
                 }, 100);
 
-                // Start analysis after 2 seconds
-                setTimeout(() => {
-                    if (camera) {
-                        simulateAnalysis();
-                    }
-                }, 2000);
+
 
             } catch (err) {
                 updateStatus(`❌ Error: ${err.message}`, 'error');
@@ -840,6 +881,11 @@
                 ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
             }
 
+            // Stop posture monitoring
+            if (postureMonitor) {
+                postureMonitor.stop();
+            }
+
             // Reset landmarks
             currentLandmarks = null;
             
@@ -853,12 +899,17 @@
             document.getElementById('fpsValue').textContent = '0 FPS';
             document.getElementById('landmarksValue').textContent = '0/33';
             document.getElementById('processingValue').textContent = '0ms';
-            document.getElementById('overallScore').textContent = '--';
-            document.getElementById('postureScore').textContent = '--';
-            document.getElementById('overallBar').style.width = '0%';
+            document.getElementById('postureScoreDisplay').textContent = '--';
             document.getElementById('postureBar').style.width = '0%';
-            document.getElementById('detectionsContainer').innerHTML = '<p style="color: #666;">No issues detected yet...</p>';
-            document.getElementById('recommendationsContainer').innerHTML = '<p style="color: #666;">Start analysis to get recommendations...</p>';
+            document.getElementById('neckScore').textContent = '--';
+            document.getElementById('shouldersScore').textContent = '--';
+            document.getElementById('spineScore').textContent = '--';
+            document.getElementById('sessionDuration').textContent = '0:00';
+            document.getElementById('avgScore').textContent = '--';
+            document.getElementById('goodPostureTime').textContent = '0:00';
+            document.getElementById('issueCount').textContent = '0';
+            document.getElementById('postureIssuesContainer').innerHTML = '<p style="color: #666;">No issues detected yet...</p>';
+            document.getElementById('postureScoreBadge').style.display = 'none';
         });
 
         // MediaPipe Pose Landmark Connections
@@ -940,6 +991,96 @@
         let camera = null;
         let currentLandmarks = null;
 
+        // Posture Monitor instance
+        let postureMonitor = null;
+        let postureMonitoringEnabled = true;
+
+        // Initialize Posture Monitor
+        function initializePostureMonitor() {
+            postureMonitor = new PostureMonitor();
+            
+            // Set up monitoring toggle
+            const toggle = document.getElementById('postureMonitoringToggle');
+            toggle.addEventListener('change', (e) => {
+                postureMonitoringEnabled = e.target.checked;
+                if (!postureMonitoringEnabled) {
+                    // Clear UI when disabled
+                    document.getElementById('postureIssuesContainer').innerHTML = '<p style="color: #666;">Monitoring disabled</p>';
+                }
+            });
+        }
+
+        // Format time in MM:SS
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Update posture UI
+        function updatePostureUI(analysis) {
+            if (!analysis) return;
+            
+            const { score, issues } = analysis;
+            
+            // Update main score
+            const scoreColor = getPostureScoreColor(score.overall);
+            document.getElementById('postureScoreDisplay').textContent = score.overall;
+            document.getElementById('postureScoreDisplay').style.color = scoreColor;
+            document.getElementById('postureBar').style.width = `${score.overall}%`;
+            
+            // Update badge
+            const badge = document.getElementById('postureScoreBadge');
+            const emoji = document.getElementById('postureScoreEmoji');
+            const text = document.getElementById('postureScoreText');
+            
+            badge.style.display = 'flex';
+            badge.className = 'posture-score-badge';
+            
+            if (score.overall >= 85) {
+                badge.classList.add('excellent');
+                emoji.textContent = '🟢';
+                text.textContent = 'Excellent';
+            } else if (score.overall >= 70) {
+                badge.classList.add('good');
+                emoji.textContent = '🟡';
+                text.textContent = 'Good';
+            } else if (score.overall >= 50) {
+                badge.classList.add('fair');
+                emoji.textContent = '🟠';
+                text.textContent = 'Fair';
+            } else {
+                badge.classList.add('poor');
+                emoji.textContent = '🔴';
+                text.textContent = 'Poor';
+            }
+            
+            // Update component scores
+            document.getElementById('neckScore').textContent = score.neck.score;
+            document.getElementById('shouldersScore').textContent = score.shoulders.score;
+            document.getElementById('spineScore').textContent = score.spine.score;
+            
+            // Update session stats
+            const stats = postureMonitor.getSessionStats();
+            document.getElementById('sessionDuration').textContent = formatTime(stats.duration);
+            document.getElementById('avgScore').textContent = stats.avgScore;
+            document.getElementById('goodPostureTime').textContent = formatTime(stats.goodPostureTime);
+            document.getElementById('issueCount').textContent = stats.issueCount;
+            
+            // Update issues list
+            const issuesContainer = document.getElementById('postureIssuesContainer');
+            if (issues.length === 0) {
+                issuesContainer.innerHTML = '<p style="color: #00ff88;">No issues detected - Great posture! 🎉</p>';
+            } else {
+                issuesContainer.innerHTML = issues.map(issue => `
+                    <div class="posture-issue-item ${issue.severity}">
+                        <div class="issue-message">${issue.icon} ${issue.message}</div>
+                        <div class="issue-recommendation">💡 ${issue.recommendation}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
         // Initialize MediaPipe Pose
         function initializeMediaPipe() {
             pose = new Pose({
@@ -974,66 +1115,21 @@
 
             // Draw skeleton overlay
             drawSkeleton(currentLandmarks);
-        }
 
-        // Initialize MediaPipe on page load
-        initializeMediaPipe();
-
-        function simulateAnalysis() {
-            if (!camera) return;
-            
-            updateStatus('🔍 Analyzing posture...', 'loading');
-            
-            setTimeout(() => {
-                if (!camera) return;
-                
-                // Simulate results
-                const mockResult = {
-                    scores: {
-                        overallHealth: Math.floor(Math.random() * 30) + 70,
-                        postureScore: Math.floor(Math.random() * 30) + 70,
-                    },
-                    detections: [
-                        { type: 'slouching', severity: 'medium', description: 'Slight slouching detected - neck angle 145°' },
-                    ],
-                    recommendations: [
-                        'Sit up straight with shoulders back and chest open',
-                        'Adjust monitor height to eye level',
-                        'Take regular breaks to stretch your back',
-                    ],
-                };
-
-                // Update scores
-                document.getElementById('overallScore').textContent = mockResult.scores.overallHealth;
-                document.getElementById('overallBar').style.width = `${mockResult.scores.overallHealth}%`;
-                document.getElementById('postureScore').textContent = mockResult.scores.postureScore;
-                document.getElementById('postureBar').style.width = `${mockResult.scores.postureScore}%`;
-
-                // Update detections
-                const detectionsHTML = mockResult.detections.map(d => `
-                    <div style="background: rgba(255, 165, 0, 0.2); border-left: 4px solid #ffa500; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
-                        <strong style="color: #ff9800;">${d.type.toUpperCase()}</strong> (${d.severity})<br>
-                        <span style="color: #ccc;">${d.description}</span>
-                    </div>
-                `).join('');
-                document.getElementById('detectionsContainer').innerHTML = detectionsHTML;
-
-                // Update recommendations
-                const recommendationsHTML = mockResult.recommendations.map(r => `
-                    <div style="background: rgba(0, 212, 255, 0.1); border-left: 4px solid #00d4ff; padding: 10px; margin-bottom: 8px; border-radius: 5px; color: #ccc;">
-                        ${r}
-                    </div>
-                `).join('');
-                document.getElementById('recommendationsContainer').innerHTML = recommendationsHTML;
-
-                updateStatus('✅ Analysis complete - Monitoring posture', 'active');
-
-                // Continue analyzing every 5 seconds
-                if (camera) {
-                    setTimeout(simulateAnalysis, 5000);
+            // Analyze posture if monitoring is enabled
+            if (postureMonitor && postureMonitoringEnabled) {
+                const analysis = postureMonitor.analyze(currentLandmarks);
+                if (analysis) {
+                    updatePostureUI(analysis);
                 }
-            }, 1500);
+            }
         }
+
+        // Initialize MediaPipe and Posture Monitor on page load
+        initializeMediaPipe();
+        initializePostureMonitor();
+
+
     </script>
 </body>
 </html>
