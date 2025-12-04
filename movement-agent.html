@@ -1043,9 +1043,13 @@
 
         // Update posture UI
         function updatePostureUI(analysis) {
-            if (!analysis) return;
+            if (!analysis) {
+                console.warn('updatePostureUI called with null analysis');
+                return;
+            }
             
             const { score, issues } = analysis;
+            console.log('Updating posture UI:', { overall: score.overall, issueCount: issues.length });
             
             // Update main score
             const scoreColor = getPostureScoreColor(score.overall);
