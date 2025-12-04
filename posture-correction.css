@@ -1,0 +1,230 @@
+/**
+ * Posture Correction Styles
+ * Visual styles for posture monitoring UI
+ */
+
+/* Alert Container */
+#postureAlertContainer {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    z-index: 9999;
+    max-width: 400px;
+    pointer-events: none;
+}
+
+#postureAlertContainer > * {
+    pointer-events: auto;
+}
+
+/* Alert Animations */
+@keyframes slideIn {
+    from {
+        transform: translateX(120%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(120%);
+        opacity: 0;
+    }
+}
+
+/* Posture Score Badge */
+.posture-score-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.posture-score-badge.excellent {
+    background: rgba(0, 255, 136, 0.2);
+    color: #00ff88;
+    border: 2px solid #00ff88;
+}
+
+.posture-score-badge.good {
+    background: rgba(255, 215, 0, 0.2);
+    color: #ffd700;
+    border: 2px solid #ffd700;
+}
+
+.posture-score-badge.fair {
+    background: rgba(255, 165, 0, 0.2);
+    color: #ffa500;
+    border: 2px solid #ffa500;
+}
+
+.posture-score-badge.poor {
+    background: rgba(255, 107, 107, 0.2);
+    color: #ff6b6b;
+    border: 2px solid #ff6b6b;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
+    }
+}
+
+/* Session Stats */
+.session-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.stat-item {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 152, 0, 0.2);
+}
+
+.stat-label {
+    color: #ff9800;
+    font-size: 0.75rem;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    color: #fff;
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+/* Posture Issues List */
+.posture-issues-list {
+    margin-top: 15px;
+}
+
+.posture-issue-item {
+    background: rgba(255, 165, 0, 0.1);
+    border-left: 4px solid #ffa500;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.posture-issue-item.severe {
+    background: rgba(255, 107, 107, 0.1);
+    border-left-color: #ff6b6b;
+}
+
+.posture-issue-item.moderate {
+    background: rgba(255, 165, 0, 0.1);
+    border-left-color: #ffa500;
+}
+
+.posture-issue-item.mild {
+    background: rgba(255, 215, 0, 0.1);
+    border-left-color: #ffd700;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.issue-message {
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+.issue-recommendation {
+    font-size: 0.9rem;
+    color: #ccc;
+}
+
+/* Toggle Switch for Monitoring */
+.monitoring-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.monitoring-toggle input[type="checkbox"] {
+    width: 50px;
+    height: 26px;
+    appearance: none;
+    background: #4a5568;
+    border-radius: 13px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.monitoring-toggle input[type="checkbox"]:checked {
+    background: #00ff88;
+}
+
+.monitoring-toggle input[type="checkbox"]::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: white;
+    top: 3px;
+    left: 3px;
+    transition: transform 0.3s ease;
+}
+
+.monitoring-toggle input[type="checkbox"]:checked::before {
+    transform: translateX(24px);
+}
+
+.monitoring-label {
+    color: #ff9800;
+    font-weight: 500;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    #postureAlertContainer {
+        top: 80px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+    
+    .session-stats {
+        grid-template-columns: 1fr;
+    }
+}
